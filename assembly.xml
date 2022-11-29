@@ -1,0 +1,19 @@
+<assembly>
+  <id>jar-with-native-libs</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <files>
+    <file>
+      <source>${project.build.cmake}/libclp-ffi-java.so</source>
+      <outputDirectory>lib/${os.name}/${os.arch}</outputDirectory>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.outputDirectory}</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
