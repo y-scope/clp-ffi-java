@@ -14,9 +14,7 @@ import java.nio.file.Paths;
  * <p></p>
  * We first try to load from java.library.path. If unsuccessful, then we try
  * loading from the JAR. This allows users to override the native library if
- * desired. See
- * https://github.com/zeromq/jzmq/blob/master/jzmq-jni/src/main/java/org/zeromq/EmbeddedLibraryTools.java
- * for an example.
+ * desired.
  */
 public class NativeLibraryLoader {
   private static final Logger logger = LoggerFactory.getLogger(NativeLibraryLoader.class);
@@ -34,7 +32,7 @@ public class NativeLibraryLoader {
       // Move on to try and load from jar
     }
 
-    // Path in JAR: /lib/${os.name}/${os.arch}/${LIBRARY_NAME}
+    // Path in JAR: /lib/${os.name}/${os.arch}/${LIBRARY_NAME}.so
     Path libPath = Paths.get("/", "lib", System.getProperty("os.name"),
         System.getProperty("os.arch"), LIBRARY_NAME + ".so");
     URL libUrl = MessageEncoder.class.getResource(libPath.toString());
@@ -44,23 +42,25 @@ public class NativeLibraryLoader {
     }
 
     try {
-      final File libFile = File.createTempFile(LIBRARY_NAME, ".tmp");
-      libFile.deleteOnExit();
+      // Extract library into a temporary file
+      File libTempFile = File.createTempFile(LIBRARY_NAME, ".tmp");
+      libTempFile.deleteOnExit();
       try (
           InputStream in = libUrl.openStream();
           BufferedOutputStream out =
-              new BufferedOutputStream(Files.newOutputStream(libFile.toPath()))
+              new BufferedOutputStream(Files.newOutputStream(libTempFile.toPath()))
       ) {
-        byte[] buf = new byte[8192];
+        byte[] buf = new byte[4096];
         while (true) {
-          int len = in.read(buf);
-          if (-1 == len) {
+          int numBytesRead = in.read(buf);
+          if (-1 == numBytesRead) {
             break;
           }
-          out.write(buf, 0, len);
+          out.write(buf, 0, numBytesRead);
         }
       }
-      System.load(libFile.getAbsolutePath());
+
+      System.load(libTempFile.getAbsolutePath());
     } catch (IOException e) {
       logger.error("Failed to load native library from JAR", e);
     }
