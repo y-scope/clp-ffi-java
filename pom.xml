@@ -120,6 +120,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
@@ -131,6 +136,27 @@
             b) in order of appearance within each phase.
             When configuring plugins below, we do our best to order and group by
             lifecycle phases. -->
+
+            <!-- phase:validate -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>os-name-replace-spaces</id>
+                        <goals>
+                            <goal>regex-property</goal>
+                        </goals>
+                        <configuration>
+                            <name>os.name.clean</name>
+                            <value>${os.name}</value>
+                            <regex xml:space="preserve">\ </regex>
+                            <replacement>-</replacement>
+                            <failIfNoMatch>false</failIfNoMatch>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- phase:generate-sources -->
             <plugin>
@@ -170,11 +196,9 @@
                         <configuration>
                             <executable>cmake</executable>
                             <arguments>
-                                <argument>-S</argument>
                                 <argument>${project.basedir}</argument>
-                                <argument>-B</argument>
-                                <argument>${project.build.cmake}</argument>
                             </arguments>
+                            <workingDirectory>${project.build.cmake}</workingDirectory>
                             <skip>${skip.libclp.cmake}</skip>
                         </configuration>
                     </execution>
@@ -203,22 +227,37 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <addMavenDescriptor>true</addMavenDescriptor>
-                    </archive>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>assemble-lib-dir</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <archive>
+                                <addMavenDescriptor>true</addMavenDescriptor>
+                            </archive>
+                            <descriptors>
+                                <descriptor>assembly-lib.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>assemble-package-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <addMavenDescriptor>true</addMavenDescriptor>
+                            </archive>
+                            <descriptors>
+                                <descriptor>assembly-package.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -1,0 +1,16 @@
+<assembly>
+  <id>native-lib</id>
+  <formats>
+    <format>dir</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.cmake}</directory>
+      <includes>
+        <include>libclp-ffi-java.*</include>
+      </includes>
+      <outputDirectory>lib/${os.name.clean}/${os.arch}</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
