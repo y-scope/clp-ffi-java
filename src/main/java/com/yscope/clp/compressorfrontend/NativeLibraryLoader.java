@@ -32,12 +32,9 @@ public class NativeLibraryLoader {
       // Move on to try and load from jar
     }
 
-    // Path in JAR: /lib/${os.name}/${os.arch}/${LIBRARY_NAME}.so
-    Path libPath = Paths.get("/", "lib", System.getProperty("os.name"),
-        System.getProperty("os.arch"), LIBRARY_NAME + ".so");
-    URL libUrl = MessageEncoder.class.getResource(libPath.toString());
+    URL libUrl = getLibUrlInJar();
     if (null == libUrl) {
-      logger.error("Failed to find library in JAR: {}", libPath);
+      logger.error("Failed to find library in JAR");
       return;
     }
 
@@ -64,5 +61,25 @@ public class NativeLibraryLoader {
     } catch (IOException e) {
       logger.error("Failed to load native library from JAR", e);
     }
+  }
+
+  private static URL getLibUrlInJar() {
+    // Path in JAR:
+    // - Linux: /lib/${osNameWithoutSpaces}/${os.arch}/${LIBRARY_NAME}.so
+    // - MacOS: /lib/${osNameWithoutSpaces}/${os.arch}/${LIBRARY_NAME}.dylib
+    String osNameWithoutSpaces = System.getProperty("os.name").replace(' ', '-');
+    Path libDir = Paths.get("/", "lib", osNameWithoutSpaces, System.getProperty("os.arch"));
+    Path[] libPaths = {
+        libDir.resolve(LIBRARY_NAME + ".so"),
+        libDir.resolve(LIBRARY_NAME + ".dylib")
+    };
+    for (Path libPath : libPaths) {
+      URL libUrl = NativeLibraryLoader.class.getResource(libPath.toString());
+      if (null != libUrl) {
+        return libUrl;
+      }
+    }
+
+    return null;
   }
 }

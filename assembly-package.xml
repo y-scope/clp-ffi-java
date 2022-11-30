@@ -4,15 +4,13 @@
     <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  <files>
-    <file>
-      <source>${project.build.cmake}/libclp-ffi-java.so</source>
-      <outputDirectory>lib/${os.name}/${os.arch}</outputDirectory>
-    </file>
-  </files>
   <fileSets>
     <fileSet>
       <directory>${project.build.outputDirectory}</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/${project.artifactId}-${project.version}-native-lib</directory>
       <outputDirectory></outputDirectory>
     </fileSet>
   </fileSets>

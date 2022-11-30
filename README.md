@@ -25,6 +25,11 @@ a foreign function interface (FFI).
   ```shell
   mvn generate-resources
   ```
+* Build and package the native library
+  ```shell
+  mvn generate-resources validate assembly:single@assemble-lib-dir
+  ```
+  * The validate phase is necessary to remove spaces from the OS name
 
 # Testing
 
