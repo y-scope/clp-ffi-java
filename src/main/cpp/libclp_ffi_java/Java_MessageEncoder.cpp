@@ -7,6 +7,7 @@
 #include <cctype>
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -15,7 +16,6 @@
 
 // Project headers
 #include "../submodules/clp/components/core/src/Defs.h"
-#include "../submodules/clp/components/core/src/Utils.hpp"
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
 #include "JavaException.hpp"
 
@@ -143,7 +143,7 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
     if (false == encoded_vars->empty()) {
         auto java_encoded_variables = jni_env->NewLongArray(encoded_vars->size());
         jni_env->SetLongArrayRegion(java_encoded_variables, 0, encoded_vars->size(),
-                                    encoded_vars->data());
+                                    bit_cast<const jlong*>(encoded_vars->data()));
         jni_env->SetObjectField(Java_encodedMessage, Java_EncodedMessage_encodedVars,
                                 java_encoded_variables);
         encoded_vars->clear();

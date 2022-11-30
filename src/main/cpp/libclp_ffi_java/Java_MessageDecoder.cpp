@@ -60,7 +60,7 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
 
     try {
         return wildcard_query_matches_any_encoded_var<var_placeholder>(
-                wildcard_query, logtype, encoded_vars, encoded_vars_length);
+                wildcard_query, logtype, bit_cast<encoded_variable_t*>(encoded_vars), encoded_vars_length);
     } catch (const ffi::EncodingException& e) {
         JavaIOException::throw_in_java(jni_env, e.what());
         return false;
@@ -109,7 +109,7 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
     auto encoded_vars_length = jni_env->GetArrayLength(Java_encodedVars);
 
     try {
-        auto message = decode_message(logtype, encoded_vars, encoded_vars_length,
+        auto message = decode_message(logtype, bit_cast<encoded_variable_t*>(encoded_vars), encoded_vars_length,
                                       all_dictionary_vars, dictionary_var_end_offsets,
                                       dictionary_var_end_offsets_length);
 
