@@ -1,0 +1,86 @@
+name: build-package
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/actions/native-lib-build/action.yml'
+      - '.github/workflows/build-and-release-package.yml'
+      - '.github/workflows/build-package.yml'
+      - 'assembly-lib.xml'
+      - 'assembly-package.xml'
+      - 'CMakeLists.txt'
+      - 'pom.xml'
+      - 'src/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/actions/native-lib-build/action.yml'
+      - '.github/workflows/build-and-release-package.yml'
+      - '.github/workflows/build-package.yml'
+      - 'assembly-lib.xml'
+      - 'assembly-package.xml'
+      - 'CMakeLists.txt'
+      - 'pom.xml'
+      - 'src/**'
+  workflow_dispatch:
+
+concurrency: build-${{github.ref}}
+
+jobs:
+  build-lib-for-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install requirements
+        run: brew install cmake gcc java11 maven
+
+      - name: Build native library
+        id: build
+        uses: ./.github/actions/native-lib-build
+
+      - uses: actions/upload-artifact@main
+        if: github.event_name != 'pull_request'
+        with:
+          name: libclp-ffi-java-macos
+          path: ${{github.workspace}}/clp-ffi-*-native-lib/
+          if-no-files-found: error
+
+  build-package:
+    needs: build-lib-for-macos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          server-id: 'github'
+
+      - name: Install requirements
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake
+
+      - name: Build native library for Linux
+        id: build
+        uses: ./.github/actions/native-lib-build
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: libclp-ffi-java-macos
+          path: ./target/.
+
+      - name: Build package, run tests, and deploy to GitHub
+        run: mvn --batch-mode deploy -Pgithub_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
