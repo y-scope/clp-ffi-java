@@ -1,0 +1,69 @@
+name: build-and-release-package
+
+on:
+  workflow_dispatch:
+
+concurrency: build-${{github.ref}}
+
+jobs:
+  build-lib-for-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install requirements
+        run: brew install cmake gcc java11 maven
+
+      - name: Build native library for MacOS
+        id: build
+        uses: ./.github/actions/native-lib-build
+
+      - uses: actions/upload-artifact@main
+        with:
+          name: libclp-ffi-java-macos
+          path: ${{github.workspace}}/clp-ffi-*-native-lib/
+          if-no-files-found: error
+
+  build-package:
+    needs: build-lib-for-macos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          server-id: 'maven'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Install requirements
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake
+
+      - name: Build native library for Linux
+        id: build
+        uses: ./.github/actions/native-lib-build
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: libclp-ffi-java-macos
+          path: ./target/.
+
+      - name: Build package, run tests, and deploy to GitHub
+        run: mvn --batch-mode deploy -Pmaven_release
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

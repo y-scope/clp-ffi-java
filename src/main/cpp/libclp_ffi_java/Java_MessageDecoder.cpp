@@ -10,9 +10,9 @@
 #include "JavaException.hpp"
 
 using ffi::decode_message;
-using libclp_ffi_java::JavaIOException;
 using ffi::VariablePlaceholder;
 using ffi::wildcard_query_matches_any_encoded_var;
+using libclp_ffi_java::JavaIOException;
 using std::string_view;
 
 /**

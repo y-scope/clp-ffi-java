@@ -15,7 +15,7 @@ public class MessageEncoder {
   /**
    * Initializes the native side of the class
    */
-  public static native void init();
+  private static native void init();
 
   /**
    * Encodes the given log message
