@@ -43,7 +43,6 @@ jobs:
         uses: ./.github/actions/native-lib-build
 
       - uses: actions/upload-artifact@main
-        if: github.event_name != 'pull_request'
         with:
           name: libclp-ffi-java-macos
           path: ${{github.workspace}}/clp-ffi-*-native-lib/
@@ -80,7 +79,11 @@ jobs:
           name: libclp-ffi-java-macos
           path: ./target/.
 
-      - name: Build package, run tests, and deploy to GitHub
-        run: mvn --batch-mode deploy -Pgithub_release
+      - name: Build package and run tests
+        run: mvn --batch-mode test
+
+      - name: Deploy to GitHub
+        if: github.event_name != 'pull_request'
+        run: mvn --batch-mode deploy -DskipTests -Pgithub_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
