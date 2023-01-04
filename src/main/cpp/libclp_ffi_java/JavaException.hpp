@@ -101,6 +101,16 @@ namespace libclp_ffi_java {
         // Methods
         static void throw_in_java (JNIEnv* jni_env, const std::string& message);
     };
+
+    class JavaUnsupportedOperationException : public JavaException {
+    public:
+        // Constructors
+        JavaUnsupportedOperationException (const char* filename, int line_number, JNIEnv* jni_env,
+                                           const std::string& message);
+
+        // Methods
+        static void throw_in_java (JNIEnv* jni_env, const std::string& message);
+    };
 }
 
 #endif // LIBCLP_FFI_JAVA_JAVAEXCEPTION_HPP

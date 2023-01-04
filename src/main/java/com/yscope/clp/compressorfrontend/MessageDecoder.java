@@ -13,6 +13,29 @@ public class MessageDecoder {
   }
 
   /**
+   * Constructs an object for decoding CLP-encoded log messages.
+   * @param variablesSchemaVersion The version of the variables schema used to
+   *                               parse the log messages.
+   * @param variableEncodingMethodsVersion The version of variable encoding
+   *                                       methods used to encode the log
+   *                                       messages.
+   * @throws UnsupportedOperationException if either version was unknown or
+   * unsupported.
+   */
+  public MessageDecoder(
+      String variablesSchemaVersion,
+      String variableEncodingMethodsVersion
+  ) throws UnsupportedOperationException {
+    setVariableHandlingRuleVersions(variablesSchemaVersion.getBytes(StandardCharsets.ISO_8859_1),
+        variableEncodingMethodsVersion.getBytes(StandardCharsets.ISO_8859_1));
+  }
+
+  private native void setVariableHandlingRuleVersions (
+      byte[] variablesSchemaVersion,
+      byte[] variableEncodingMethodsVersion
+  ) throws UnsupportedOperationException;
+
+  /**
    * Decodes the message with the given logtype and variables
    * @param logtype
    * @param dictionaryVars
@@ -20,7 +43,7 @@ public class MessageDecoder {
    * @return The decoded message
    * @throws IOException if decoding fails
    */
-  public static String decodeMessage(
+  public String decodeMessage(
       String logtype,
       String[] dictionaryVars,
       long[] encodedVars
@@ -53,7 +76,7 @@ public class MessageDecoder {
    * @throws IOException if the delimiters in the logtype don't match the number
    * of variables.
    */
-  private static native byte[] decodeMessageNative(byte[] logtype, byte[] allDictionaryVars,
+  private native byte[] decodeMessageNative(byte[] logtype, byte[] allDictionaryVars,
       int[] dictionaryVarEndOffsets, long[] encodedVars) throws IOException;
 
   /**
@@ -64,7 +87,7 @@ public class MessageDecoder {
    * @param encodedVars
    * @return true if a match was found, false otherwise
    */
-  public static boolean wildcardQueryMatchesAnyIntVar(
+  public boolean wildcardQueryMatchesAnyIntVar(
       String wildcardQuery,
       String logtype,
       long[] encodedVars
@@ -73,7 +96,7 @@ public class MessageDecoder {
         logtype.getBytes(StandardCharsets.ISO_8859_1), encodedVars);
   }
 
-  private static native boolean wildcardQueryMatchesAnyIntVarNative(
+  private native boolean wildcardQueryMatchesAnyIntVarNative(
       byte[] wildcardQuery,
       byte[] logtype,
       long[] encodedVars
@@ -86,7 +109,7 @@ public class MessageDecoder {
    * @param encodedVars
    * @return true if a match was found, false otherwise
    */
-  public static boolean wildcardQueryMatchesAnyFloatVar(
+  public boolean wildcardQueryMatchesAnyFloatVar(
       String wildcardQuery,
       String logtype,
       long[] encodedVars
@@ -96,7 +119,7 @@ public class MessageDecoder {
         logtype.getBytes(StandardCharsets.ISO_8859_1), encodedVars);
   }
 
-  private static native boolean wildcardQueryMatchesAnyFloatVarNative(
+  private native boolean wildcardQueryMatchesAnyFloatVarNative(
       byte[] wildcardQuery,
       byte[] logtype,
       long[] encodedVars

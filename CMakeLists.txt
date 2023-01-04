@@ -15,6 +15,8 @@ add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
 find_package(JNI REQUIRED)
 
 add_library(clp-ffi-java SHARED
+        src/main/cpp/libclp_ffi_java/common.cpp
+        src/main/cpp/libclp_ffi_java/common.hpp
         src/main/cpp/libclp_ffi_java/Java_MessageDecoder.cpp
         src/main/cpp/libclp_ffi_java/Java_MessageEncoder.cpp
         src/main/cpp/libclp_ffi_java/JavaException.cpp
@@ -24,8 +26,8 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.tpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.cpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.hpp
-        target/include/com_yscope_clp_compressorfrontend_MessageEncoder.h
         target/include/com_yscope_clp_compressorfrontend_MessageDecoder.h
+        target/include/com_yscope_clp_compressorfrontend_MessageEncoder.h
         )
 target_compile_features(clp-ffi-java
         PRIVATE cxx_std_17

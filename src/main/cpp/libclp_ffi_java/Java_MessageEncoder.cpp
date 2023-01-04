@@ -17,6 +17,7 @@
 // Project headers
 #include "../submodules/clp/components/core/src/Defs.h"
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "common.hpp"
 #include "JavaException.hpp"
 
 using ffi::encode_message;
@@ -94,6 +95,17 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_ini
     logtype = std::make_unique<string>();
     encoded_vars = std::make_unique<vector<encoded_variable_t>>();
     dictionary_var_bounds = std::make_unique<vector<int32_t>>();
+}
+
+JNIEXPORT void JNICALL
+Java_com_yscope_clp_compressorfrontend_MessageEncoder_setVariableHandlingRuleVersions (
+        JNIEnv* jni_env,
+        jobject,
+        jbyteArray Java_variablesSchemaVersion,
+        jbyteArray Java_variableEncodingMethodsVersion
+) {
+    libclp_ffi_java::validate_variable_handling_rule_versions(jni_env, Java_variablesSchemaVersion,
+                                                              Java_variableEncodingMethodsVersion);
 }
 
 JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_encodeMessageNative (
