@@ -4,6 +4,8 @@
 static constexpr char cJavaClassNotFoundExceptionSignature[] = "java/lang/ClassNotFoundException";
 static constexpr char cJavaIOExceptionSignature[] = "java/io/IOException";
 static constexpr char cJavaRuntimeExceptionSignature[] = "java/lang/RuntimeException";
+static constexpr char cJavaUnsupportedOperationException[] =
+        "java/lang/UnsupportedOperationException";
 
 using std::string;
 
@@ -61,6 +63,19 @@ namespace libclp_ffi_java {
                       cJavaRuntimeExceptionSignature, message) {}
 
     void JavaRuntimeException::throw_in_java (JNIEnv* jni_env, const string& message) {
+        JavaException::throw_in_java(jni_env, cJavaRuntimeExceptionSignature, message);
+    }
+
+    JavaUnsupportedOperationException::JavaUnsupportedOperationException (
+            const char* filename,
+            int line_number,
+            JNIEnv* jni_env,
+            const string& message
+    ) : JavaException(ErrorCode_Unsupported, filename, line_number, jni_env,
+                      cJavaUnsupportedOperationException, message) {}
+
+    void JavaUnsupportedOperationException::throw_in_java (JNIEnv* jni_env, const string& message)
+    {
         JavaException::throw_in_java(jni_env, cJavaRuntimeExceptionSignature, message);
     }
 }

@@ -7,6 +7,7 @@
 // Project headers
 #include "../submodules/clp/components/core/src/string_utils.hpp"
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "common.hpp"
 #include "JavaException.hpp"
 
 using ffi::decode_message;
@@ -67,10 +68,21 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
     }
 }
 
+JNIEXPORT void JNICALL
+Java_com_yscope_clp_compressorfrontend_MessageDecoder_setVariableHandlingRuleVersions (
+        JNIEnv* jni_env,
+        jobject,
+        jbyteArray Java_variablesSchemaVersion,
+        jbyteArray Java_variableEncodingMethodsVersion
+) {
+    libclp_ffi_java::validate_variable_handling_rule_versions(jni_env, Java_variablesSchemaVersion,
+                                                              Java_variableEncodingMethodsVersion);
+}
+
 JNIEXPORT jbyteArray JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
         JNIEnv* jni_env,
-        jclass,
+        jobject,
         jbyteArray Java_logtype,
         jbyteArray Java_allDictionaryVars,
         jintArray Java_dictionaryVarEndOffsets,
@@ -129,7 +141,7 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
 JNIEXPORT jboolean JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_wildcardQueryMatchesAnyFloatVarNative (
         JNIEnv* jni_env,
-        jclass,
+        jobject,
         jbyteArray Java_wildcard_query,
         jbyteArray Java_logtype,
         jlongArray Java_encoded_vars
@@ -141,7 +153,7 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_wildcardQueryMatchesAnyFlo
 JNIEXPORT jboolean JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_wildcardQueryMatchesAnyIntVarNative (
         JNIEnv* jni_env,
-        jclass,
+        jobject,
         jbyteArray Java_wildcard_query,
         jbyteArray Java_logtype,
         jlongArray Java_encoded_vars
