@@ -1,6 +1,9 @@
-// NOTE: Throughout this file, the size_checked_pointer_cast from jbyte*
-// (signed char*) to char* should be safe since we are comparing the values
-// against ASCII rather than doing arithmetic.
+// NOTE: Throughout this file...
+// - size_checked_pointer_cast from jbyte* (signed char*) to char* should be
+//   safe since we are comparing the values against ASCII rather than doing
+//   arithmetic.
+// - size_checked_pointer_cast from encoded_variable_t* -> jlong* is
+//   necessary to resolve build errors on macOS.
 
 // C++ standard libraries
 #include <memory>
@@ -201,7 +204,7 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
                 jni_env->NewLongArray(static_cast<jsize>(encoded_vars.size()));
         jni_env->SetLongArrayRegion(java_encoded_variables, 0,
                                     static_cast<jsize>(encoded_vars.size()),
-                                    encoded_vars.data());
+                                    size_checked_pointer_cast<jlong>(encoded_vars.data()));
         jni_env->SetObjectField(Java_encodedMessage, Java_EncodedMessage_encodedVars,
                                 java_encoded_variables);
     }
