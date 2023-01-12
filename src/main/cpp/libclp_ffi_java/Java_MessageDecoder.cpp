@@ -13,7 +13,9 @@
 using ffi::decode_message;
 using ffi::VariablePlaceholder;
 using ffi::wildcard_query_matches_any_encoded_var;
+using libclp_ffi_java::cJSizeMax;
 using libclp_ffi_java::JavaIOException;
+using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 
 /**
@@ -41,7 +43,7 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
         return false;
     }
     auto logtype_length = jni_env->GetArrayLength(Java_logtype);
-    string_view logtype(reinterpret_cast<const char*>(logtype_bytes), logtype_length);
+    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes), logtype_length);
 
     // Get wildcard query
     auto wildcard_query_bytes = jni_env->GetByteArrayElements(Java_wildcard_query, nullptr);
@@ -49,7 +51,7 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
         return false;
     }
     auto wildcard_query_length = jni_env->GetArrayLength(Java_wildcard_query);
-    string_view wildcard_query(reinterpret_cast<const char*>(wildcard_query_bytes),
+    string_view wildcard_query(size_checked_pointer_cast<char>(wildcard_query_bytes),
                                wildcard_query_length);
 
     // Get encoded variables
@@ -61,7 +63,7 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
 
     try {
         return wildcard_query_matches_any_encoded_var<var_placeholder>(
-                wildcard_query, logtype, bit_cast<encoded_variable_t*>(encoded_vars), encoded_vars_length);
+                wildcard_query, logtype, encoded_vars, encoded_vars_length);
     } catch (const ffi::EncodingException& e) {
         JavaIOException::throw_in_java(jni_env, e.what());
         return false;
@@ -94,7 +96,7 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
         return nullptr;
     }
     auto logtype_length = jni_env->GetArrayLength(Java_logtype);
-    string_view logtype(reinterpret_cast<const char*>(logtype_bytes), logtype_length);
+    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes), logtype_length);
 
     // Get dictionary variables
     auto all_dictionary_vars_bytes =
@@ -103,8 +105,8 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
         return nullptr;
     }
     auto all_dictionary_vars_length = jni_env->GetArrayLength(Java_allDictionaryVars);
-    string_view all_dictionary_vars(reinterpret_cast<const char*>(all_dictionary_vars_bytes),
-                                    all_dictionary_vars_length);
+    string_view all_dictionary_vars(size_checked_pointer_cast<char>(all_dictionary_vars_bytes),
+            all_dictionary_vars_length);
 
     auto dictionary_var_end_offsets = jni_env->GetIntArrayElements(Java_dictionaryVarEndOffsets,
                                                                    nullptr);
@@ -121,16 +123,20 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
     auto encoded_vars_length = jni_env->GetArrayLength(Java_encodedVars);
 
     try {
-        auto message = decode_message(logtype, bit_cast<encoded_variable_t*>(encoded_vars), encoded_vars_length,
+        auto message = decode_message(logtype, encoded_vars, encoded_vars_length,
                                       all_dictionary_vars, dictionary_var_end_offsets,
                                       dictionary_var_end_offsets_length);
 
-        auto message_bytes = jni_env->NewByteArray((int)message.length());
+        if (message.length() > cJSizeMax) {
+            JavaIOException::throw_in_java(jni_env, "message can't fit in Java byte array");
+            return nullptr;
+        }
+        auto message_bytes = jni_env->NewByteArray(static_cast<jsize>(message.length()));
         if (nullptr == message_bytes) {
             return nullptr;
         }
-        jni_env->SetByteArrayRegion(message_bytes, 0, (int)message.length(),
-                                    reinterpret_cast<jbyte*>(message.data()));
+        jni_env->SetByteArrayRegion(message_bytes, 0, static_cast<jsize>(message.length()),
+                                    size_checked_pointer_cast<jbyte>(message.data()));
         return message_bytes;
     } catch (const ffi::EncodingException& e) {
         JavaIOException::throw_in_java(jni_env, e.what());
