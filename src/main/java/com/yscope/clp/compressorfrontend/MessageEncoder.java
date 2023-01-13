@@ -9,13 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class MessageEncoder {
   static {
     NativeLibraryLoader.load();
-    init();
   }
-
-  /**
-   * Initializes the native side of the class
-   */
-  private static native void init();
 
   /**
    * Constructs an object for encoding log messages using CLP.
