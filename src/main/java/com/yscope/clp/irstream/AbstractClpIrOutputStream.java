@@ -42,6 +42,14 @@ public abstract class AbstractClpIrOutputStream implements AutoCloseable, Flusha
    */
   @Override
   public void close () throws IOException {
+    // Write the preamble if necessary (if it hasn't already been written
+    // because the file contains no log events)
+    // NOTE: This is necessary because an IR stream without a preamble is
+    // invalid.
+    if (null != timestampPattern) {
+      writePreamble(0);
+    }
+
     outputStream.write(getEofByte());
     outputStream.close();
 
@@ -71,11 +79,7 @@ public abstract class AbstractClpIrOutputStream implements AutoCloseable, Flusha
     }
 
     if (null != timestampPattern) {
-      byte[] preamble = encodePreamble(timestamp);
-      outputStream.write(preamble);
-      // Clear these members now that they've been written to the preamble
-      timestampPattern = null;
-      timeZoneId = null;
+      writePreamble(timestamp);
     }
 
     byte[] encodedLogEvent = encodeLogEvent(timestamp, message);
@@ -85,6 +89,7 @@ public abstract class AbstractClpIrOutputStream implements AutoCloseable, Flusha
   /**
    * Encodes the preamble into the IR stream format
    * @param firstMessageTimestamp Timestamp of the first message in this stream
+   * (if one exists)
    * @return The encoded preamble
    * @throws IOException on encode failure
    */
@@ -98,6 +103,19 @@ public abstract class AbstractClpIrOutputStream implements AutoCloseable, Flusha
    * @throws IOException on encode failure
    */
   protected abstract byte[] encodeLogEvent (long timestamp, ByteBuffer message) throws IOException;
+
+  /**
+   * Writes the preamble to the stream
+   * @param firstMessageTimestamp Timestamp of the first message in this stream
+   * (if one exists)
+   * @throws IOException on I/O error
+   */
+  private void writePreamble (long firstMessageTimestamp) throws IOException {
+    outputStream.write(encodePreamble(firstMessageTimestamp));
+    // Clear these members now that they've been written to the preamble
+    timestampPattern = null;
+    timeZoneId = null;
+  }
 
   /**
    * Creates the native state necessary for this output stream
