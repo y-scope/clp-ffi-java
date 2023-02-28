@@ -28,7 +28,7 @@ jobs:
 
   build-package:
     needs: build-lib-for-macos
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     permissions:
       contents: read
       packages: write
