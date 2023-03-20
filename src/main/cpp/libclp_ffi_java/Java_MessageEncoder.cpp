@@ -23,6 +23,7 @@
 
 using ffi::encode_message;
 using libclp_ffi_java::cJSizeMax;
+using libclp_ffi_java::get_java_primitive_array_elements;
 using libclp_ffi_java::JavaClassNotFoundException;
 using libclp_ffi_java::JavaIOException;
 using libclp_ffi_java::JavaRuntimeException;
@@ -146,12 +147,13 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
         jobject Java_encodedMessage
 ) {
     // Get the message
-    auto message_bytes = jni_env->GetByteArrayElements(Java_message, nullptr);
+    auto message_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+            jni_env, Java_message, JNI_ABORT);
     if (nullptr == message_bytes) {
         return;
     }
     auto message_length = jni_env->GetArrayLength(Java_message);
-    string_view message(size_checked_pointer_cast<char>(message_bytes), message_length);
+    string_view message(size_checked_pointer_cast<char>(message_bytes.get()), message_length);
 
     std::string logtype;
     std::vector<encoded_variable_t> encoded_vars;

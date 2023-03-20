@@ -16,6 +16,7 @@
 #include "../ClpIrOutputStreamState.hpp"
 #include "../common.hpp"
 #include "../JavaException.hpp"
+#include "../JavaPrimitiveArrayElementsDeleter.hpp"
 
 namespace libclp_ffi_java::ir_stream {
     // Local function prototypes
@@ -51,33 +52,34 @@ namespace libclp_ffi_java::ir_stream {
         }
 
         // Get the timestamp pattern
-        auto timestamp_pattern_bytes = jni_env->GetByteArrayElements(Java_timestampPattern,
-                                                                     nullptr);
+        auto timestamp_pattern_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+                jni_env, Java_timestampPattern, JNI_ABORT);
         if (nullptr == timestamp_pattern_bytes) {
             return nullptr;
         }
         std::string_view timestamp_pattern{
-                size_checked_pointer_cast<char>(timestamp_pattern_bytes),
+                size_checked_pointer_cast<char>(timestamp_pattern_bytes.get()),
                 static_cast<size_t>(timestamp_pattern_length)
         };
 
         // Get the timestamp pattern syntax
-        auto timestamp_pattern_syntax_bytes =
-                jni_env->GetByteArrayElements(Java_timestampPatternSyntax, nullptr);
+        auto timestamp_pattern_syntax_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+                jni_env, Java_timestampPatternSyntax, JNI_ABORT);
         if (nullptr == timestamp_pattern_syntax_bytes) {
             return nullptr;
         }
         std::string_view timestamp_pattern_syntax{
-                size_checked_pointer_cast<char>(timestamp_pattern_syntax_bytes),
+                size_checked_pointer_cast<char>(timestamp_pattern_syntax_bytes.get()),
                 static_cast<size_t>(timestamp_pattern_syntax_length)
         };
 
         // Get the time zone ID
-        auto time_zone_id_bytes = jni_env->GetByteArrayElements(Java_timeZoneId, nullptr);
+        auto time_zone_id_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+                jni_env, Java_timeZoneId, JNI_ABORT);
         if (nullptr == time_zone_id_bytes) {
             return nullptr;
         }
-        std::string_view time_zone_id{size_checked_pointer_cast<char>(time_zone_id_bytes),
+        std::string_view time_zone_id{size_checked_pointer_cast<char>(time_zone_id_bytes.get()),
                                  static_cast<size_t>(time_zone_id_length)};
 
         auto stream_state = reinterpret_cast<ClpIrOutputStreamState*>(
@@ -121,12 +123,13 @@ namespace libclp_ffi_java::ir_stream {
         }
 
         // Get the message
-        auto message_bytes = jni_env->GetByteArrayElements(Java_message, nullptr);
+        auto message_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+                jni_env, Java_message, JNI_ABORT);
         if (nullptr == message_bytes) {
             JavaIOException::throw_in_java(jni_env, "[native] Failed to get message.");
             return nullptr;
         }
-        std::string_view message{size_checked_pointer_cast<char>(message_bytes),
+        std::string_view message{size_checked_pointer_cast<char>(message_bytes.get()),
                             static_cast<size_t>(message_length)};
 
         auto stream_state = reinterpret_cast<ClpIrOutputStreamState*>(
