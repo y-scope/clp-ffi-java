@@ -35,6 +35,8 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/Java_MessageEncoder.cpp
         src/main/cpp/libclp_ffi_java/JavaException.cpp
         src/main/cpp/libclp_ffi_java/JavaException.hpp
+        src/main/cpp/libclp_ffi_java/JavaPrimitiveArrayElementsDeleter.cpp
+        src/main/cpp/libclp_ffi_java/JavaPrimitiveArrayElementsDeleter.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.tpp

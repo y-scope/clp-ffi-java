@@ -18,6 +18,7 @@ using ffi::eight_byte_encoded_variable_t;
 using ffi::VariablePlaceholder;
 using ffi::wildcard_query_matches_any_encoded_var;
 using libclp_ffi_java::cJSizeMax;
+using libclp_ffi_java::get_java_primitive_array_elements;
 using libclp_ffi_java::JavaIOException;
 using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
@@ -42,24 +43,27 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
                                                  jlongArray Java_encoded_vars)
 {
     // Get logtype
-    auto logtype_bytes = jni_env->GetByteArrayElements(Java_logtype, nullptr);
+    auto logtype_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+            jni_env, Java_logtype, JNI_ABORT);
     if (nullptr == logtype_bytes) {
         return false;
     }
     auto logtype_length = jni_env->GetArrayLength(Java_logtype);
-    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes), logtype_length);
+    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes.get()), logtype_length);
 
     // Get wildcard query
-    auto wildcard_query_bytes = jni_env->GetByteArrayElements(Java_wildcard_query, nullptr);
+    auto wildcard_query_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+            jni_env, Java_wildcard_query, JNI_ABORT);
     if (nullptr == wildcard_query_bytes) {
         return false;
     }
     auto wildcard_query_length = jni_env->GetArrayLength(Java_wildcard_query);
-    string_view wildcard_query(size_checked_pointer_cast<char>(wildcard_query_bytes),
+    string_view wildcard_query(size_checked_pointer_cast<char>(wildcard_query_bytes.get()),
                                wildcard_query_length);
 
     // Get encoded variables
-    auto encoded_vars = jni_env->GetLongArrayElements(Java_encoded_vars, nullptr);
+    auto encoded_vars = get_java_primitive_array_elements<jlongArray, jlong>(
+            jni_env, Java_encoded_vars, JNI_ABORT);
     if (nullptr == encoded_vars) {
         return false;
     }
@@ -68,7 +72,7 @@ bool jni_wildcard_query_matches_any_encoded_var (JNIEnv* jni_env, jbyteArray Jav
     try {
         return wildcard_query_matches_any_encoded_var<var_placeholder>(
                 wildcard_query, logtype,
-                size_checked_pointer_cast<eight_byte_encoded_variable_t>(encoded_vars),
+                size_checked_pointer_cast<eight_byte_encoded_variable_t>(encoded_vars.get()),
                 encoded_vars_length
         );
     } catch (const ffi::EncodingException& e) {
@@ -98,32 +102,35 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
         jlongArray Java_encodedVars
 ) {
     // Get logtype
-    auto logtype_bytes = jni_env->GetByteArrayElements(Java_logtype, nullptr);
+    auto logtype_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+            jni_env, Java_logtype, JNI_ABORT);
     if (nullptr == logtype_bytes) {
         return nullptr;
     }
     auto logtype_length = jni_env->GetArrayLength(Java_logtype);
-    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes), logtype_length);
+    string_view logtype(size_checked_pointer_cast<char>(logtype_bytes.get()), logtype_length);
 
     // Get dictionary variables
-    auto all_dictionary_vars_bytes =
-            jni_env->GetByteArrayElements(Java_allDictionaryVars, nullptr);
+    auto all_dictionary_vars_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
+            jni_env, Java_allDictionaryVars, JNI_ABORT);
     if (nullptr == all_dictionary_vars_bytes) {
         return nullptr;
     }
     auto all_dictionary_vars_length = jni_env->GetArrayLength(Java_allDictionaryVars);
-    string_view all_dictionary_vars(size_checked_pointer_cast<char>(all_dictionary_vars_bytes),
+    string_view all_dictionary_vars(
+            size_checked_pointer_cast<char>(all_dictionary_vars_bytes.get()),
             all_dictionary_vars_length);
 
-    auto dictionary_var_end_offsets = jni_env->GetIntArrayElements(Java_dictionaryVarEndOffsets,
-                                                                   nullptr);
+    auto dictionary_var_end_offsets = get_java_primitive_array_elements<jintArray, jint>(
+            jni_env, Java_dictionaryVarEndOffsets, JNI_ABORT);
     if (nullptr == dictionary_var_end_offsets) {
         return nullptr;
     }
     auto dictionary_var_end_offsets_length = jni_env->GetArrayLength(Java_dictionaryVarEndOffsets);
 
     // Get encoded variables
-    auto encoded_vars = jni_env->GetLongArrayElements(Java_encodedVars, nullptr);
+    auto encoded_vars = get_java_primitive_array_elements<jlongArray, jlong>(
+            jni_env, Java_encodedVars, JNI_ABORT);
     if (nullptr == encoded_vars) {
         return nullptr;
     }
@@ -132,10 +139,10 @@ Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
     try {
         auto message = decode_message(
                 logtype,
-                size_checked_pointer_cast<eight_byte_encoded_variable_t>(encoded_vars),
+                size_checked_pointer_cast<eight_byte_encoded_variable_t>(encoded_vars.get()),
                 encoded_vars_length,
                 all_dictionary_vars,
-                dictionary_var_end_offsets,
+                dictionary_var_end_offsets.get(),
                 dictionary_var_end_offsets_length
         );
 
