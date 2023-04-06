@@ -62,3 +62,7 @@ target_include_directories(clp-ffi-java PRIVATE
 target_compile_options(clp-ffi-java PRIVATE
         "-D_REENTRANT"  # Necessary since the JVM is multithreaded
         )
+target_link_libraries(clp-ffi-java PRIVATE
+        # Static link to improve compatibility on other Linux versions
+        -static-libstdc++
+        )
