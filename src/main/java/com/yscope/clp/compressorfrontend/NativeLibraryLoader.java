@@ -20,10 +20,10 @@ public class NativeLibraryLoader {
   // Create a timestamp formatter to format with millisecond precision and a
   // timezone offset.
   // Examples of formatted timestamps:
-  // - 2023-01-01T00:00:00.000Z
-  // - 2023-01-01T00:00:00.000-0500
+  // - 2023-01-01T00:00:00.000+00:00
+  // - 2023-01-01T00:00:00.000-05:00
   private static final DateTimeFormatter logTimestampFormatter =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 
   /**
    * Loads the native library
