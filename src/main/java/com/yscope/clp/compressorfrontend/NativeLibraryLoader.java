@@ -5,6 +5,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Class to load the native library.
@@ -15,6 +17,13 @@ import java.nio.file.Paths;
  */
 public class NativeLibraryLoader {
   private static final String LIBRARY_NAME = "libclp-ffi-java";
+  // Create a timestamp formatter to format with millisecond precision and a
+  // timezone offset.
+  // Examples of formatted timestamps:
+  // - 2023-01-01T00:00:00.000Z
+  // - 2023-01-01T00:00:00.000-0500
+  private static final DateTimeFormatter logTimestampFormatter =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
   /**
    * Loads the native library
@@ -83,6 +92,6 @@ public class NativeLibraryLoader {
   }
 
   private static void logError(String message) {
-    System.err.println("clp-ffi: " + message);
+    System.err.println(ZonedDateTime.now().format(logTimestampFormatter) + " clp-ffi: " + message);
   }
 }
