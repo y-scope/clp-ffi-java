@@ -1,8 +1,5 @@
 package com.yscope.clp.compressorfrontend;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -17,24 +14,25 @@ import java.nio.file.Paths;
  * desired.
  */
 public class NativeLibraryLoader {
-  private static final Logger logger = LoggerFactory.getLogger(NativeLibraryLoader.class);
-
   private static final String LIBRARY_NAME = "libclp-ffi-java";
 
   /**
    * Loads the native library
    */
   public static void load () {
+    Throwable loadLibraryThrowable;
     try {
       System.loadLibrary(LIBRARY_NAME.substring("lib".length()));
       return;
     } catch (Throwable e) {
+      loadLibraryThrowable = e;
       // Move on to try and load from jar
     }
 
     URL libUrl = getLibUrlInJar();
     if (null == libUrl) {
-      logger.error("Failed to find library in JAR");
+      logError("Failed to find native library in JAR.");
+      logError("System.loadLibrary failed - " + loadLibraryThrowable.getMessage());
       return;
     }
 
@@ -59,7 +57,8 @@ public class NativeLibraryLoader {
 
       System.load(libTempFile.getAbsolutePath());
     } catch (IOException e) {
-      logger.error("Failed to load native library from JAR", e);
+      logError("Failed to load native library from JAR -");
+      e.printStackTrace();
     }
   }
 
@@ -81,5 +80,9 @@ public class NativeLibraryLoader {
     }
 
     return null;
+  }
+
+  private static void logError(String message) {
+    System.err.println("clp-ffi: " + message);
   }
 }
