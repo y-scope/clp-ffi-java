@@ -66,42 +66,6 @@ static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature
 static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
                                    jobject Java_encodedMessage);
 
-static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env) {
-    // Get Java class fields
-    // NOTE: GetFieldID already throws Java exceptions, so we don't need to
-    Java_EncodedMessage_logtype = jni_env->GetFieldID(Java_EncodedMessage, "logtype", "[B");
-    if (nullptr == Java_EncodedMessage_logtype) {
-        return false;
-    }
-    Java_EncodedMessage_encodedVars =
-            jni_env->GetFieldID(Java_EncodedMessage, "encodedVars", "[J");
-    if (nullptr == Java_EncodedMessage_encodedVars) {
-        return false;
-    }
-    Java_EncodedMessage_dictVarBounds =
-            jni_env->GetFieldID(Java_EncodedMessage, "dictionaryVarBounds", "[I");
-    if (nullptr == Java_EncodedMessage_dictVarBounds) {
-        return false;
-    }
-
-    return true;
-}
-
-static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
-    auto local_class_ref = jni_env->FindClass(class_signature);
-    if (nullptr == local_class_ref) {
-        throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
-    }
-    auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
-    if (nullptr == global_class_ref) {
-        jni_env->DeleteLocalRef(local_class_ref);
-        throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
-    }
-    jni_env->DeleteLocalRef(local_class_ref);
-
-    return global_class_ref;
-}
-
 JNIEXPORT jint JNICALL JNI_OnLoad (JavaVM* vm, void*) {
     JNIEnv* jni_env;
     // Based on the JDK 11 JNI docs, JNI 1.6 should be sufficient for all
@@ -161,8 +125,44 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END()
 }
 
-void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
-                            jobject Java_encodedMessage)
+static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env) {
+    // Get Java class fields
+    // NOTE: GetFieldID already throws Java exceptions, so we don't need to
+    Java_EncodedMessage_logtype = jni_env->GetFieldID(Java_EncodedMessage, "logtype", "[B");
+    if (nullptr == Java_EncodedMessage_logtype) {
+        return false;
+    }
+    Java_EncodedMessage_encodedVars =
+            jni_env->GetFieldID(Java_EncodedMessage, "encodedVars", "[J");
+    if (nullptr == Java_EncodedMessage_encodedVars) {
+        return false;
+    }
+    Java_EncodedMessage_dictVarBounds =
+            jni_env->GetFieldID(Java_EncodedMessage, "dictionaryVarBounds", "[I");
+    if (nullptr == Java_EncodedMessage_dictVarBounds) {
+        return false;
+    }
+
+    return true;
+}
+
+static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
+    auto local_class_ref = jni_env->FindClass(class_signature);
+    if (nullptr == local_class_ref) {
+        throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
+    }
+    auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
+    if (nullptr == global_class_ref) {
+        jni_env->DeleteLocalRef(local_class_ref);
+        throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
+    }
+    jni_env->DeleteLocalRef(local_class_ref);
+
+    return global_class_ref;
+}
+
+static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
+                                   jobject Java_encodedMessage)
 {
     // Get the message
     auto message_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
