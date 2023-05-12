@@ -19,18 +19,6 @@
 #include "../JavaPrimitiveArrayElementsDeleter.hpp"
 
 namespace libclp_ffi_java::ir_stream {
-    // Local function prototypes
-    /**
-     * Copies the given IR buffer to Java and returns a reference to it.
-     * NOTE: On failure, callers should return to Java without calling any other
-     * JNI methods.
-     * @param ir_buffer
-     * @param jni_env
-     * @return Reference to the Java buffer on success, nullptr otherwise.
-     */
-    static jbyteArray copy_ir_buffer_to_java (const std::vector<int8_t>& ir_buffer,
-                                              JNIEnv* jni_env);
-
     template <typename encoded_variable_t>
     jbyteArray encode_preamble (
             JNIEnv* jni_env,
@@ -43,20 +31,9 @@ namespace libclp_ffi_java::ir_stream {
             jint time_zone_id_length,
             jlong reference_timestamp
     ) {
-        if (timestamp_pattern_length < 0 || timestamp_pattern_syntax_length < 0 ||
-            time_zone_id_length < 0)
-        {
-            JavaRuntimeException::throw_in_java(jni_env,
-                                                "[native] Byte array lengths cannot be negative.");
-            return nullptr;
-        }
-
         // Get the timestamp pattern
         auto timestamp_pattern_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
                 jni_env, Java_timestampPattern, JNI_ABORT);
-        if (nullptr == timestamp_pattern_bytes) {
-            return nullptr;
-        }
         std::string_view timestamp_pattern{
                 size_checked_pointer_cast<char>(timestamp_pattern_bytes.get()),
                 static_cast<size_t>(timestamp_pattern_length)
@@ -65,9 +42,6 @@ namespace libclp_ffi_java::ir_stream {
         // Get the timestamp pattern syntax
         auto timestamp_pattern_syntax_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
                 jni_env, Java_timestampPatternSyntax, JNI_ABORT);
-        if (nullptr == timestamp_pattern_syntax_bytes) {
-            return nullptr;
-        }
         std::string_view timestamp_pattern_syntax{
                 size_checked_pointer_cast<char>(timestamp_pattern_syntax_bytes.get()),
                 static_cast<size_t>(timestamp_pattern_syntax_length)
@@ -76,9 +50,6 @@ namespace libclp_ffi_java::ir_stream {
         // Get the time zone ID
         auto time_zone_id_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
                 jni_env, Java_timeZoneId, JNI_ABORT);
-        if (nullptr == time_zone_id_bytes) {
-            return nullptr;
-        }
         std::string_view time_zone_id{size_checked_pointer_cast<char>(time_zone_id_bytes.get()),
                                  static_cast<size_t>(time_zone_id_length)};
 
@@ -102,13 +73,12 @@ namespace libclp_ffi_java::ir_stream {
                     ir_buffer
             );
         }
-        if (false == encoding_successful)
-        {
-            JavaIOException::throw_in_java(jni_env, "Failed to encode preamble.");
-            return nullptr;
+        if (false == encoding_successful) {
+            throw JavaIOException(__FILENAME__, __LINE__, jni_env, "Failed to encode preamble.");
         }
 
-        return libclp_ffi_java::ir_stream::copy_ir_buffer_to_java(ir_buffer, jni_env);
+        return new_java_primitive_array<jbyteArray, jbyte>(
+                jni_env, size_checked_pointer_cast<jbyte>(ir_buffer.data()), ir_buffer.size());
     }
 
     template <typename encoded_variable_t>
@@ -116,21 +86,11 @@ namespace libclp_ffi_java::ir_stream {
                                  jlong timestamp_or_timestamp_delta, jbyteArray Java_message,
                                  jint message_length)
     {
-        if (message_length < 0) {
-            JavaRuntimeException::throw_in_java(jni_env,
-                                                "[native] Byte array lengths cannot be negative.");
-            return nullptr;
-        }
-
         // Get the message
         auto message_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
                 jni_env, Java_message, JNI_ABORT);
-        if (nullptr == message_bytes) {
-            JavaIOException::throw_in_java(jni_env, "[native] Failed to get message.");
-            return nullptr;
-        }
         std::string_view message{size_checked_pointer_cast<char>(message_bytes.get()),
-                            static_cast<size_t>(message_length)};
+                                 static_cast<size_t>(message_length)};
 
         auto stream_state = reinterpret_cast<ClpIrOutputStreamState*>(
                 bit_cast<uintptr_t>(stream_state_address));
@@ -150,34 +110,11 @@ namespace libclp_ffi_java::ir_stream {
             );
         }
         if (false == encoding_successful) {
-            JavaIOException::throw_in_java(jni_env, "Failed to encode message.");
-            return nullptr;
+            throw JavaIOException(__FILENAME__, __LINE__, jni_env, "Failed to encode message.");
         }
 
-        return copy_ir_buffer_to_java(ir_buffer, jni_env);
-    }
-
-    static jbyteArray copy_ir_buffer_to_java (const std::vector<int8_t>& ir_buffer,
-                                              JNIEnv* jni_env)
-    {
-        if (ir_buffer.size() > cJSizeMax) {
-            JavaIOException::throw_in_java(jni_env, "Encoded IR data too long for byte array.");
-            return nullptr;
-        }
-        auto Java_ir_buffer = jni_env->NewByteArray(static_cast<jsize>(ir_buffer.size()));
-        if (nullptr == Java_ir_buffer) {
-            JavaIOException::throw_in_java(jni_env, "[native] Failed to allocate return buffer.");
-            return nullptr;
-        }
-        jni_env->SetByteArrayRegion(Java_ir_buffer, 0, static_cast<jsize>(ir_buffer.size()),
-                                    size_checked_pointer_cast<const jbyte>(ir_buffer.data()));
-        auto exception = jni_env->ExceptionOccurred();
-        if (nullptr != exception) {
-            JavaIOException::throw_in_java(jni_env,
-                                           "[native] Failed to set return buffer content.");
-            return nullptr;
-        }
-        return Java_ir_buffer;
+        return new_java_primitive_array<jbyteArray, jbyte>(
+                jni_env, size_checked_pointer_cast<jbyte>(ir_buffer.data()), ir_buffer.size());
     }
 }
 

@@ -91,7 +91,7 @@ public class MessageDecoder {
       String wildcardQuery,
       String logtype,
       long[] encodedVars
-  ) {
+  ) throws IOException {
     return wildcardQueryMatchesAnyIntVarNative(wildcardQuery.getBytes(StandardCharsets.ISO_8859_1),
         logtype.getBytes(StandardCharsets.ISO_8859_1), encodedVars);
   }
@@ -100,7 +100,7 @@ public class MessageDecoder {
       byte[] wildcardQuery,
       byte[] logtype,
       long[] encodedVars
-  );
+  ) throws IOException;
 
   /**
    * Checks whether any encoded float variable matches the given wildcard query

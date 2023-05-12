@@ -15,7 +15,7 @@ Java_com_yscope_clp_irstream_AbstractClpIrOutputStream_createNativeState (JNIEnv
     // NOTE: The use of uintptr_t means that if for some reason,
     // sizeof(jlong) < sizeof(void*) but sizeof(jlong) == sizeof(uintptr_t),
     // then this conversion will still work.
-    return bit_cast<jlong>(reinterpret_cast<uintptr_t>(new ClpIrOutputStreamState()));
+    return bit_cast<jlong>(reinterpret_cast<uintptr_t>(new(std::nothrow) ClpIrOutputStreamState()));
 }
 
 JNIEXPORT void JNICALL

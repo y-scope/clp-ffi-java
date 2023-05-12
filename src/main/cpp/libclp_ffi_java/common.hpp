@@ -25,6 +25,10 @@ namespace libclp_ffi_java {
      * @param release_mode The JNI primitive array release mode (see the
      * docs for JNIEnv::Release<Primitive>ArrayElements)
      * @return A unique pointer to the native version of the array
+     * @throw libclp_ffi_java::JavaExceptionOccurred if we couldn't get the
+     * array due to a Java exception.
+     * @throw libclp_ffi_java::GeneralException if we couldn't get the array
+     * for another reason.
      */
     template <typename JavaArrayType, typename NativeArrayElementType>
     std::unique_ptr<
@@ -32,6 +36,26 @@ namespace libclp_ffi_java {
             JavaPrimitiveArrayElementsDeleter<JavaArrayType, NativeArrayElementType>
     > get_java_primitive_array_elements (JNIEnv* jni_env, JavaArrayType Java_array,
                                          jint release_mode);
+
+    /**
+     * Creates a new Java primitive array and initializes it with the contents
+     * of the given buffer.
+     * @tparam JavaArrayType The Java array's type (e.g., jbooleanArray)
+     * @tparam NativeArrayElementType The type of elements of the native array
+     * @param jni_env
+     * @param buf The elements to initialize the Java array with
+     * @param buf_len The number of elements
+     * @return The Java array
+     * @throw libclp_ffi_java::JavaUnsupportedOperationException if \p buf_len
+     * can't fit in a Java array.
+     * @throw libclp_ffi_java::JavaExceptionOccurredOperationException if the
+     * array couldn't be allocated or copied into due to a Java exception.
+     * @throw libclp_ffi_java::GeneralException if the array couldn't be
+     * allocated or copied into for another reason.
+     */
+    template <typename JavaArrayType, typename NativeArrayElementType>
+    JavaArrayType new_java_primitive_array (JNIEnv* jni_env, const NativeArrayElementType* buf,
+                                            size_t buf_len);
 
     /**
      * Cast between pointers after ensuring the source and destination types are
@@ -62,5 +86,7 @@ namespace libclp_ffi_java {
             jbyteArray Java_variableEncodingMethodsVersion
     );
 }
+
+#include "common.tpp"
 
 #endif // LIBCLP_FFI_JAVA_COMMON_HPP

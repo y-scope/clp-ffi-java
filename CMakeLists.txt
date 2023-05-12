@@ -26,6 +26,8 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/ClpIrOutputStreamState.hpp
         src/main/cpp/libclp_ffi_java/common.cpp
         src/main/cpp/libclp_ffi_java/common.hpp
+        src/main/cpp/libclp_ffi_java/common.tpp
+        src/main/cpp/libclp_ffi_java/GeneralException.hpp
         src/main/cpp/libclp_ffi_java/ir_stream/common.hpp
         src/main/cpp/libclp_ffi_java/ir_stream/common.tpp
         src/main/cpp/libclp_ffi_java/Java_AbstractClpIrOutputStream.cpp
