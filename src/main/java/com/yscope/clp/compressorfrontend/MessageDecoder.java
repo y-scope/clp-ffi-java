@@ -124,4 +124,105 @@ public class MessageDecoder {
       byte[] logtype,
       long[] encodedVars
   ) throws IOException;
+
+  /**
+   * For each log message in a batch of messages, checks whether the given
+   * wildcard queries match the message's encoded variables. Specifically, let
+   * {w in W} be the set of wildcard strings and {e in E} be the set of encoded
+   * variables. This method will return true only if:
+   * (1) Each unique `w` matches a unique `e`.
+   * (2) When (1) is true, the order of elements in both W and E is unchanged.
+   * NOTE: Instead of taking an array of objects, this method takes arrays of
+   * object-members (the result of serializing the objects) since this is
+   * currently called from contexts where the objects will have already been
+   * serialized.
+   * @param logtypes The logtypes of the messages
+   * @param encodedVarArrays Rows of encoded variables corresponding to the
+   * messages
+   * @param wildcardVarPlaceholders An array of variable placeholders, one for
+   * each variable (or potential variable) containing a wildcard, indicating how
+   * the variable query should be interpreted.
+   * @param serializedVarWildcardQueries The wildcard queries to compare with
+   * the encoded variables. Callers must ensure each wildcard query contains no
+   * redundant wildcards (e.g. "**") nor unnecessary escape characters (e.g.
+   * "\"). The queries are serialized into a single array with each query
+   * following the previous query, and each query's end index specified in
+   * {@code varWildcardQueryEndIndexes}.
+   * @param varWildcardQueryEndIndexes The end index of each wildcard query in
+   * {@code serializedVarWildcardQueries}
+   * @param matchResults Returns the match result per message
+   */
+  public void batchEncodedVarsWildcardMatch (
+      byte[][] logtypes,
+      long[][] encodedVarArrays,
+      byte[] wildcardVarPlaceholders,
+      byte[] serializedVarWildcardQueries,
+      int[] varWildcardQueryEndIndexes,
+      int[] matchResults
+  ) throws IOException {
+    // Validate the array lengths
+    if (logtypes.length != matchResults.length) {
+      throw new IllegalArgumentException("Number of logtypes given doesn't match size of output "
+                                             + "array.");
+    }
+    if (encodedVarArrays.length != matchResults.length) {
+      throw new IllegalArgumentException("Number of encoded variable arrays given doesn't match "
+                                             + "size of output array.");
+    }
+
+    // Validate the end indexes
+    int lastIdx = 0;
+    for (int i : varWildcardQueryEndIndexes) {
+      if (i < lastIdx) {
+        throw new IllegalArgumentException("Invalid wildcard variable query end index: i (" + i
+                                               + ") < lastIdx (" + lastIdx + ")");
+      }
+      if (i > serializedVarWildcardQueries.length) {
+        throw new IllegalArgumentException("Invalid wildcard variable query end index: i (" + i
+                                               + ") > serializedVarWildcardQueries.length ("
+                                               + lastIdx + ")");
+      }
+      lastIdx = i;
+    }
+
+    batchEncodedVarsWildcardMatchNative(
+        logtypes.length,
+        logtypes,
+        encodedVarArrays,
+        wildcardVarPlaceholders,
+        wildcardVarPlaceholders.length,
+        serializedVarWildcardQueries,
+        serializedVarWildcardQueries.length,
+        varWildcardQueryEndIndexes,
+        varWildcardQueryEndIndexes.length,
+        matchResults);
+  }
+
+  /**
+   * Same as {@link MessageDecoder#batchEncodedVarsWildcardMatch} except array
+   * lengths are specified separately to avoid unnecessary calls into the JVM
+   * from the native code.
+   * @param numMessages
+   * @param logtypes
+   * @param encodedVarArrays
+   * @param wildcardVarPlaceholders
+   * @param wildcardVarPlaceholdersLen
+   * @param serializedVarWildcardQueries
+   * @param serializedVarWildcardQueriesLen
+   * @param varWildcardQueryEndIndexes
+   * @param varWildcardQueryEndIndexesLen
+   * @param matchResults
+   */
+  private native void batchEncodedVarsWildcardMatchNative (
+      int numMessages,
+      byte[][] logtypes,
+      long[][] encodedVarArrays,
+      byte[] wildcardVarPlaceholders,
+      int wildcardVarPlaceholdersLen,
+      byte[] serializedVarWildcardQueries,
+      int serializedVarWildcardQueriesLen,
+      int[] varWildcardQueryEndIndexes,
+      int varWildcardQueryEndIndexesLen,
+      int[] matchResults
+  ) throws IOException;
 }

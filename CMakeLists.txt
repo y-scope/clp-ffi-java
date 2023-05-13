@@ -31,7 +31,9 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/ir_stream/common.hpp
         src/main/cpp/libclp_ffi_java/ir_stream/common.tpp
         src/main/cpp/libclp_ffi_java/Java_AbstractClpIrOutputStream.cpp
+        src/main/cpp/libclp_ffi_java/Java_AbstractClpWildcardQueryEncoder.cpp
         src/main/cpp/libclp_ffi_java/Java_EightByteClpIrOutputStream.cpp
+        src/main/cpp/libclp_ffi_java/Java_EightByteClpWildcardQueryEncoder.cpp
         src/main/cpp/libclp_ffi_java/Java_FourByteClpIrOutputStream.cpp
         src/main/cpp/libclp_ffi_java/Java_MessageDecoder.cpp
         src/main/cpp/libclp_ffi_java/Java_MessageEncoder.cpp
@@ -39,12 +41,28 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/JavaException.hpp
         src/main/cpp/libclp_ffi_java/JavaPrimitiveArrayElementsDeleter.cpp
         src/main/cpp/libclp_ffi_java/JavaPrimitiveArrayElementsDeleter.hpp
+        src/main/cpp/libclp_ffi_java/static_init.cpp
+        src/main/cpp/libclp_ffi_java/static_init.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.tpp
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/protocol_constants.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/CompositeWildcardToken.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/CompositeWildcardToken.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/ExactVariableToken.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/ExactVariableToken.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/query_methods.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/query_methods.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/QueryMethodFailed.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/QueryToken.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/QueryWildcard.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/QueryWildcard.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/Subquery.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/Subquery.hpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/WildcardToken.cpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/search/WildcardToken.hpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.cpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.hpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.tpp

@@ -19,44 +19,24 @@
 
 // Project headers
 #include "common.hpp"
+#include "GeneralException.hpp"
 #include "JavaException.hpp"
+#include "static_init.hpp"
 
 using ffi::encode_message;
 using libclp_ffi_java::get_java_primitive_array_elements;
-using libclp_ffi_java::JavaClassNotFoundException;
+using libclp_ffi_java::Java_EncodedMessage;
+using libclp_ffi_java::Java_EncodedMessage_dictVarBounds;
+using libclp_ffi_java::Java_EncodedMessage_encodedVars;
+using libclp_ffi_java::Java_EncodedMessage_logtype;
 using libclp_ffi_java::JavaIOException;
-using libclp_ffi_java::JavaRuntimeException;
 using libclp_ffi_java::new_java_primitive_array;
 using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 using std::string;
 using std::vector;
 
-// Constants
-constexpr jint cRequiredJNIVersion = JNI_VERSION_1_6;
-
-// Globals
-static jclass Java_EncodedMessage = nullptr;
-static jfieldID Java_EncodedMessage_logtype;
-static jfieldID Java_EncodedMessage_dictVarBounds;
-static jfieldID Java_EncodedMessage_encodedVars;
-
 // Local function prototypes
-/**
- * Caches the field IDs for the Java EncodedMessage class
- * @param jni_env
- * @return true on success, false otherwise
- */
-static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env);
-/**
- * Gets a Java global reference (persists between JNI calls) to the Java class
- * with the given signature
- * @param jni_env
- * @param class_signature
- * @return The reference
- */
-static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature);
-
 /**
  * See MessageEncoder::encodeMessageNative in Java
  * @param jni_env
@@ -65,41 +45,6 @@ static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature
  */
 static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
                                    jobject Java_encodedMessage);
-
-JNIEXPORT jint JNICALL JNI_OnLoad (JavaVM* vm, void*) {
-    JNIEnv* jni_env;
-    // Based on the JDK 11 JNI docs, JNI 1.6 should be sufficient for all
-    // JNI methods except those related to modules
-    if (vm->GetEnv(reinterpret_cast<void**>(&jni_env), cRequiredJNIVersion) != JNI_OK) {
-        return JNI_ERR;
-    }
-
-    // Cache JNI objects
-    try {
-        Java_EncodedMessage = get_class_global_ref(jni_env,
-                "com/yscope/clp/compressorfrontend/EncodedMessage");
-    } catch (libclp_ffi_java::JavaException& e) {
-        return JNI_ERR;
-    }
-    if (cache_java_encoded_message_field_ids(jni_env) == false) {
-        jni_env->DeleteGlobalRef(Java_EncodedMessage);
-        Java_EncodedMessage = nullptr;
-        return JNI_ERR;
-    }
-
-    return cRequiredJNIVersion;
-}
-
-JNIEXPORT void JNICALL JNI_OnUnload (JavaVM* vm, void*) {
-    JNIEnv* jni_env;
-    if (vm->GetEnv(reinterpret_cast<void**>(&jni_env), cRequiredJNIVersion) != JNI_OK) {
-        // Unexpected error, but nothing we can do
-        return;
-    }
-
-    jni_env->DeleteGlobalRef(Java_EncodedMessage);
-    Java_EncodedMessage = nullptr;
-}
 
 JNIEXPORT void JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageEncoder_setVariableHandlingRuleVersions (
@@ -123,42 +68,6 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     encode_message_native(jni_env, Java_message, Java_encodedMessage);
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END()
-}
-
-static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env) {
-    // Get Java class fields
-    // NOTE: GetFieldID already throws Java exceptions, so we don't need to
-    Java_EncodedMessage_logtype = jni_env->GetFieldID(Java_EncodedMessage, "logtype", "[B");
-    if (nullptr == Java_EncodedMessage_logtype) {
-        return false;
-    }
-    Java_EncodedMessage_encodedVars =
-            jni_env->GetFieldID(Java_EncodedMessage, "encodedVars", "[J");
-    if (nullptr == Java_EncodedMessage_encodedVars) {
-        return false;
-    }
-    Java_EncodedMessage_dictVarBounds =
-            jni_env->GetFieldID(Java_EncodedMessage, "dictionaryVarBounds", "[I");
-    if (nullptr == Java_EncodedMessage_dictVarBounds) {
-        return false;
-    }
-
-    return true;
-}
-
-static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
-    auto local_class_ref = jni_env->FindClass(class_signature);
-    if (nullptr == local_class_ref) {
-        throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
-    }
-    auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
-    if (nullptr == global_class_ref) {
-        jni_env->DeleteLocalRef(local_class_ref);
-        throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
-    }
-    jni_env->DeleteLocalRef(local_class_ref);
-
-    return global_class_ref;
 }
 
 static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
