@@ -1,10 +1,6 @@
 #ifndef LIBCLP_FFI_JAVA_IR_STREAM_COMMON_HPP
 #define LIBCLP_FFI_JAVA_IR_STREAM_COMMON_HPP
 
-// C++ standard libraries
-#include <cstdint>
-#include <vector>
-
 // JNI
 #include <jni.h>
 

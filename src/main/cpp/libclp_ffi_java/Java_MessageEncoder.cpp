@@ -22,15 +22,14 @@
 #include "JavaException.hpp"
 
 using ffi::encode_message;
-using libclp_ffi_java::cJSizeMax;
 using libclp_ffi_java::get_java_primitive_array_elements;
 using libclp_ffi_java::JavaClassNotFoundException;
 using libclp_ffi_java::JavaIOException;
 using libclp_ffi_java::JavaRuntimeException;
+using libclp_ffi_java::new_java_primitive_array;
 using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 using std::string;
-using std::unique_ptr;
 using std::vector;
 
 // Constants
@@ -58,41 +57,14 @@ static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env);
  */
 static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature);
 
-static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env) {
-    // Get Java class fields
-    // NOTE: GetFieldID already throws Java exceptions, so we don't need to
-    Java_EncodedMessage_logtype = jni_env->GetFieldID(Java_EncodedMessage, "logtype", "[B");
-    if (nullptr == Java_EncodedMessage_logtype) {
-        return false;
-    }
-    Java_EncodedMessage_encodedVars =
-            jni_env->GetFieldID(Java_EncodedMessage, "encodedVars", "[J");
-    if (nullptr == Java_EncodedMessage_encodedVars) {
-        return false;
-    }
-    Java_EncodedMessage_dictVarBounds =
-            jni_env->GetFieldID(Java_EncodedMessage, "dictionaryVarBounds", "[I");
-    if (nullptr == Java_EncodedMessage_dictVarBounds) {
-        return false;
-    }
-
-    return true;
-}
-
-static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
-    auto local_class_ref = jni_env->FindClass(class_signature);
-    if (nullptr == local_class_ref) {
-        throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
-    }
-    auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
-    if (nullptr == global_class_ref) {
-        jni_env->DeleteLocalRef(local_class_ref);
-        throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
-    }
-    jni_env->DeleteLocalRef(local_class_ref);
-
-    return global_class_ref;
-}
+/**
+ * See MessageEncoder::encodeMessageNative in Java
+ * @param jni_env
+ * @param Java_message
+ * @param Java_encodedMessage
+ */
+static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
+                                   jobject Java_encodedMessage);
 
 JNIEXPORT jint JNICALL JNI_OnLoad (JavaVM* vm, void*) {
     JNIEnv* jni_env;
@@ -136,8 +108,10 @@ Java_com_yscope_clp_compressorfrontend_MessageEncoder_setVariableHandlingRuleVer
         jbyteArray Java_variablesSchemaVersion,
         jbyteArray Java_variableEncodingMethodsVersion
 ) {
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     libclp_ffi_java::validate_variable_handling_rule_versions(jni_env, Java_variablesSchemaVersion,
                                                               Java_variableEncodingMethodsVersion);
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END()
 }
 
 JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_encodeMessageNative (
@@ -146,68 +120,84 @@ JNIEXPORT void JNICALL Java_com_yscope_clp_compressorfrontend_MessageEncoder_enc
         jbyteArray Java_message,
         jobject Java_encodedMessage
 ) {
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
+    encode_message_native(jni_env, Java_message, Java_encodedMessage);
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END()
+}
+
+static bool cache_java_encoded_message_field_ids (JNIEnv* jni_env) {
+    // Get Java class fields
+    // NOTE: GetFieldID already throws Java exceptions, so we don't need to
+    Java_EncodedMessage_logtype = jni_env->GetFieldID(Java_EncodedMessage, "logtype", "[B");
+    if (nullptr == Java_EncodedMessage_logtype) {
+        return false;
+    }
+    Java_EncodedMessage_encodedVars =
+            jni_env->GetFieldID(Java_EncodedMessage, "encodedVars", "[J");
+    if (nullptr == Java_EncodedMessage_encodedVars) {
+        return false;
+    }
+    Java_EncodedMessage_dictVarBounds =
+            jni_env->GetFieldID(Java_EncodedMessage, "dictionaryVarBounds", "[I");
+    if (nullptr == Java_EncodedMessage_dictVarBounds) {
+        return false;
+    }
+
+    return true;
+}
+
+static jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
+    auto local_class_ref = jni_env->FindClass(class_signature);
+    if (nullptr == local_class_ref) {
+        throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
+    }
+    auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
+    if (nullptr == global_class_ref) {
+        jni_env->DeleteLocalRef(local_class_ref);
+        throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
+    }
+    jni_env->DeleteLocalRef(local_class_ref);
+
+    return global_class_ref;
+}
+
+static void encode_message_native (JNIEnv* jni_env, jbyteArray Java_message,
+                                   jobject Java_encodedMessage)
+{
     // Get the message
     auto message_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
             jni_env, Java_message, JNI_ABORT);
-    if (nullptr == message_bytes) {
-        return;
-    }
     auto message_length = jni_env->GetArrayLength(Java_message);
     string_view message(size_checked_pointer_cast<char>(message_bytes.get()), message_length);
 
-    std::string logtype;
-    std::vector<encoded_variable_t> encoded_vars;
-    std::vector<int32_t> dictionary_var_bounds;
+    string logtype;
+    vector<encoded_variable_t> encoded_vars;
+    vector<int32_t> dictionary_var_bounds;
     if (false == encode_message(message, logtype, encoded_vars, dictionary_var_bounds)) {
-        JavaIOException::throw_in_java(jni_env, "message contains variable placeholders");
-        return;
+        throw JavaIOException(__FILENAME__, __LINE__, jni_env,
+                              "message contains variable placeholders");
     }
 
     // Set encodedMessage.logtype
-    if (logtype.length() > cJSizeMax) {
-        JavaIOException::throw_in_java(jni_env, "logtype too long for byte array");
-        return;
-    }
-    auto Java_logtype = jni_env->NewByteArray(static_cast<jsize>(logtype.length()));
-    if (nullptr == Java_logtype) {
-        return;
-    }
-    jni_env->SetByteArrayRegion(Java_logtype, 0, static_cast<jsize>(logtype.length()),
-                                size_checked_pointer_cast<jbyte>(logtype.data()));
-    auto exception = jni_env->ExceptionOccurred();
-    if (nullptr != exception) {
-        return;
-    }
+    auto Java_logtype = new_java_primitive_array<jbyteArray, jbyte>(
+            jni_env, size_checked_pointer_cast<jbyte>(logtype.data()), logtype.length());
     jni_env->SetObjectField(Java_encodedMessage, Java_EncodedMessage_logtype, Java_logtype);
 
     // Set encodedMessage.dictionaryVarBounds
     if (false == dictionary_var_bounds.empty()) {
-        if (dictionary_var_bounds.size() > cJSizeMax) {
-            JavaIOException::throw_in_java(jni_env, "dictionaryVarBounds can't fit in Java int "
-                                                    "array");
-            return;
-        }
-        auto java_dict_var_bounds =
-                jni_env->NewIntArray(static_cast<jsize>(dictionary_var_bounds.size()));
-        jni_env->SetIntArrayRegion(java_dict_var_bounds, 0,
-                                   static_cast<jsize>(dictionary_var_bounds.size()),
-                                   dictionary_var_bounds.data());
+        auto Java_dictVarBounds = new_java_primitive_array<jintArray, jint>(
+                jni_env, size_checked_pointer_cast<jint>(dictionary_var_bounds.data()),
+                dictionary_var_bounds.size());
         jni_env->SetObjectField(Java_encodedMessage, Java_EncodedMessage_dictVarBounds,
-                                java_dict_var_bounds);
+                                Java_dictVarBounds);
     }
 
     // Set encodedMessage.encodedVars
     if (false == encoded_vars.empty()) {
-        if (encoded_vars.size() > cJSizeMax) {
-            JavaIOException::throw_in_java(jni_env, "encodedVars can't fit in Java long array");
-            return;
-        }
-        auto java_encoded_variables =
-                jni_env->NewLongArray(static_cast<jsize>(encoded_vars.size()));
-        jni_env->SetLongArrayRegion(java_encoded_variables, 0,
-                                    static_cast<jsize>(encoded_vars.size()),
-                                    size_checked_pointer_cast<jlong>(encoded_vars.data()));
+        auto Java_encodedVars = new_java_primitive_array<jlongArray, jlong>(
+                jni_env, size_checked_pointer_cast<jlong>(encoded_vars.data()),
+                encoded_vars.size());
         jni_env->SetObjectField(Java_encodedMessage, Java_EncodedMessage_encodedVars,
-                                java_encoded_variables);
+                                Java_encodedVars);
     }
 }

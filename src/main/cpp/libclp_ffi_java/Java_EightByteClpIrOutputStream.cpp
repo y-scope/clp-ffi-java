@@ -1,28 +1,15 @@
-// C++ standard libraries
-#include <string_view>
-
 // CLP
 #include "../submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.hpp"
-#include "../submodules/clp/components/core/src/type_utils.hpp"
 
 // JNI
 #include <com_yscope_clp_irstream_EightByteClpIrOutputStream.h>
 
 // Project headers
-#include "ClpIrOutputStreamState.hpp"
-#include "common.hpp"
+#include "GeneralException.hpp"
 #include "ir_stream/common.hpp"
-#include "JavaException.hpp"
 
-using ffi::ir_stream::eight_byte_encoding::encode_message;
-using ffi::ir_stream::eight_byte_encoding::encode_preamble;
-using libclp_ffi_java::cJSizeMax;
-using libclp_ffi_java::ClpIrOutputStreamState;
 using libclp_ffi_java::ir_stream::encode_log_event;
-using libclp_ffi_java::JavaIOException;
-using libclp_ffi_java::JavaRuntimeException;
-using libclp_ffi_java::size_checked_pointer_cast;
-using std::string_view;
+using libclp_ffi_java::ir_stream::encode_preamble;
 
 JNIEXPORT jbyteArray JNICALL
 Java_com_yscope_clp_irstream_EightByteClpIrOutputStream_encodePreambleNative (
@@ -36,7 +23,8 @@ Java_com_yscope_clp_irstream_EightByteClpIrOutputStream_encodePreambleNative (
         jbyteArray Java_timeZoneId,
         jint time_zone_id_length
 ) {
-    return libclp_ffi_java::ir_stream::encode_preamble<ffi::eight_byte_encoded_variable_t>(
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
+    return encode_preamble<ffi::eight_byte_encoded_variable_t>(
             jni_env,
             stream_state_address,
             Java_timestampPattern,
@@ -47,6 +35,7 @@ Java_com_yscope_clp_irstream_EightByteClpIrOutputStream_encodePreambleNative (
             time_zone_id_length,
             0
     );
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END(nullptr)
 }
 
 JNIEXPORT jbyteArray JNICALL
@@ -58,6 +47,8 @@ Java_com_yscope_clp_irstream_EightByteClpIrOutputStream_encodeLogEventNative (
         jbyteArray Java_message,
         jint message_length
 ) {
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     return encode_log_event<ffi::eight_byte_encoded_variable_t>(
             jni_env, stream_state_address, timestamp, Java_message, message_length);
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END(nullptr)
 }
