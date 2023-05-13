@@ -127,12 +127,28 @@ public class MessageDecoder {
 
   /**
    * For each log message in a batch of messages, checks whether the given
-   * wildcard queries match the message's encoded variables. Specifically, let
-   * {w in W} be the set of wildcard strings and {e in E} be the set of encoded
-   * variables. This method will return true only if:
+   * wildcard queries for variables match the message's encoded variables.
+   * <br>
+   * For example, consider a user's wildcard query, "*123*456*789*". One
+   * potential CLP subquery might have this original wildcard query decomposed
+   * into three wildcard queries for three encoded variables: ["*123*", "*456*",
+   * "*789*"]. We refer to these decomposed wildcard queries as variable
+   * wildcard-queries. Consider matching these variable wildcard-queries against
+   * a message with these encoded variables: [123, 0, 456, 0, 789]. This method
+   * should return true since each of the variable wildcard-queries matches a
+   * unique encoded variable, in sequence.
+   * <br>
+   * Specifically, let {w in W} be the set of variable wildcard-queries and
+   * {e in E} be the set of encoded variables. This method will return true if
+   * and only if:
    * (1) Each unique `w` matches a unique `e`.
    * (2) When (1) is true, the order of elements in both W and E is unchanged.
-   * NOTE: Instead of taking an array of objects, this method takes arrays of
+   * <br>
+   * NOTE 1: This is just one part of CLP's query processing algorithm. For more
+   * details, see
+   * https://github.com/y-scope/clp/blob/main/components/core/src/ffi/search/README.md
+   * <br>
+   * NOTE 2: Instead of taking an array of objects, this method takes arrays of
    * object-members (the result of serializing the objects) since this is
    * currently called from contexts where the objects will have already been
    * serialized.

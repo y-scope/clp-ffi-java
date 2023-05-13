@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EncodingTests {
   @Test
-  void testEncodings() {
+  void testEncodingMessages () {
     try {
       String message = "Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3";
       EncodedMessage encodedMessage = new EncodedMessage();
@@ -44,7 +44,7 @@ public class EncodingTests {
   }
 
   @Test
-  void test() {
+  void testEncodingQueries () {
     EightByteClpWildcardQueryEncoder encoder = new EightByteClpWildcardQueryEncoder(
         BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
         BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1
@@ -63,7 +63,7 @@ public class EncodingTests {
     // Validate that the query can be decoded correctly
     MessageDecoder messageDecoder =
         new MessageDecoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
-            BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
+                           BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
     String decodedQuery;
     try {
       String logtypeQuery = subquery.getLogtypeQueryAsString();
@@ -106,7 +106,7 @@ public class EncodingTests {
   }
 
   @Test
-  void testBatchEncodedVarsWildcardMatchNative() {
+  void testBatchEncodedVarsWildcardMatchNative () {
     MessageEncoder messageEncoder = new MessageEncoder(
         BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
         BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
@@ -119,7 +119,7 @@ public class EncodingTests {
     try {
       int msgIdx = 0;
       messageEncoder.encodeMessage("Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3",
-          encodedMessage);
+                                   encodedMessage);
       logtypes[msgIdx] = encodedMessage.logtype;
       encodedVarArrays[msgIdx] = encodedMessage.encodedVars;
       ++msgIdx;
