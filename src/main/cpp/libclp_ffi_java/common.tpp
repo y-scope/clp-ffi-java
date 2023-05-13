@@ -9,6 +9,13 @@
 #include "GeneralException.hpp"
 
 namespace libclp_ffi_java {
+    /**
+     * False boolean dependent on a template parameter to workaround C++'s
+     * behaviour which prevents static_assert(false);
+     */
+    template<typename>
+    inline constexpr bool dependent_false_v = false;
+
     // Local function prototypes
     /**
      * Copies \p buf_len elements of \p buf to the Java array \p Java_array,
@@ -54,6 +61,10 @@ namespace libclp_ffi_java {
             get_array = &JNIEnv::GetFloatArrayElements;
         } else if constexpr (std::is_same_v<JavaArrayType, jdoubleArray>) {
             get_array = &JNIEnv::GetDoubleArrayElements;
+        } else {
+            // NOTE: NativeArrayElementType is validated by the compiler based
+            // on JavaArrayType
+            static_assert(dependent_false_v<JavaArrayType>, "Unsupported type for JavaArrayType");
         }
 
         using DeleterType =
@@ -98,6 +109,10 @@ namespace libclp_ffi_java {
             new_array = &JNIEnv::NewFloatArray;
         } else if constexpr (std::is_same_v<JavaArrayType, jdoubleArray>) {
             new_array = &JNIEnv::NewDoubleArray;
+        } else {
+            // NOTE: NativeArrayElementType is validated by the compiler based
+            // on JavaArrayType
+            static_assert(dependent_false_v<JavaArrayType>, "Unsupported type for JavaArrayType");
         }
         auto Java_array = new_array(jni_env, static_cast<jsize>(buf_len));
         auto exception = jni_env->ExceptionOccurred();
@@ -137,6 +152,10 @@ namespace libclp_ffi_java {
             set_array_region = &JNIEnv::SetFloatArrayRegion;
         } else if constexpr (std::is_same_v<JavaArrayType, jdoubleArray>) {
             set_array_region = &JNIEnv::SetDoubleArrayRegion;
+        } else {
+            // NOTE: NativeArrayElementType is validated by the compiler based
+            // on JavaArrayType
+            static_assert(dependent_false_v<JavaArrayType>, "Unsupported type for JavaArrayType");
         }
         set_array_region(jni_env, Java_array, static_cast<jsize>(begin_pos),
                          static_cast<jsize>(buf_len), buf);

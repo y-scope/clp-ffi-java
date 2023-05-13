@@ -37,9 +37,9 @@ namespace libclp_ffi_java {
                 size_checked_pointer_cast<char>(encoding_methods_version_bytes.get()),
                 encoding_methods_version_length);
         if (cVariableEncodingMethodsVersion != encoding_methods_version) {
-            throw JavaUnsupportedOperationException(
-                    __FILENAME__, __LINE__, jni_env,
-                    "Unsupported version for variable encoding methods");
+            throw JavaUnsupportedOperationException(__FILENAME__, __LINE__, jni_env,
+                                                    "Unsupported version for variable encoding"
+                                                    " methods");
         }
     }
 }

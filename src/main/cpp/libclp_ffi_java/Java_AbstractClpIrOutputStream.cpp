@@ -7,15 +7,19 @@
 
 // Project headers
 #include "ClpIrOutputStreamState.hpp"
+#include "GeneralException.hpp"
 
 using libclp_ffi_java::ClpIrOutputStreamState;
 
 JNIEXPORT jlong JNICALL
-Java_com_yscope_clp_irstream_AbstractClpIrOutputStream_createNativeState (JNIEnv*, jobject) {
+Java_com_yscope_clp_irstream_AbstractClpIrOutputStream_createNativeState (JNIEnv* jni_env, jobject)
+{
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     // NOTE: The use of uintptr_t means that if for some reason,
     // sizeof(jlong) < sizeof(void*) but sizeof(jlong) == sizeof(uintptr_t),
     // then this conversion will still work.
-    return bit_cast<jlong>(reinterpret_cast<uintptr_t>(new(std::nothrow) ClpIrOutputStreamState()));
+    return bit_cast<jlong>(reinterpret_cast<uintptr_t>(new ClpIrOutputStreamState()));
+    LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END(0)
 }
 
 JNIEXPORT void JNICALL

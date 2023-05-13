@@ -31,6 +31,13 @@ namespace libclp_ffi_java::ir_stream {
             jint time_zone_id_length,
             jlong reference_timestamp
     ) {
+        if (timestamp_pattern_length < 0 || timestamp_pattern_syntax_length < 0
+            || time_zone_id_length < 0)
+        {
+            throw JavaIllegalArgumentException(__FILENAME__, __LINE__, jni_env,
+                                               "[native] Byte array lengths cannot be negative.");
+        }
+
         // Get the timestamp pattern
         auto timestamp_pattern_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
                 jni_env, Java_timestampPattern, JNI_ABORT);

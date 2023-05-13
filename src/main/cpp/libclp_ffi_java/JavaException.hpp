@@ -82,6 +82,16 @@ namespace libclp_ffi_java {
         static void throw_in_java (JNIEnv* jni_env, const char* class_name);
     };
 
+    class JavaIllegalArgumentException : public JavaException {
+    public:
+        // Constructors
+        JavaIllegalArgumentException (const char* filename, int line_number, JNIEnv* jni_env,
+                                      const std::string& message);
+
+        // Methods
+        static void throw_in_java (JNIEnv* jni_env, const std::string& message);
+    };
+
     class JavaIOException : public JavaException {
     public:
         // Constructors

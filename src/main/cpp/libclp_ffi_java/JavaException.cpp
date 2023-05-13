@@ -2,6 +2,8 @@
 
 // Constants
 static constexpr char cJavaClassNotFoundExceptionSignature[] = "java/lang/ClassNotFoundException";
+static constexpr char cJavaIllegalArgumentExceptionSignature[] =
+        "java/lang/IllegalArgumentException";
 static constexpr char cJavaIOExceptionSignature[] = "java/io/IOException";
 static constexpr char cJavaRuntimeExceptionSignature[] = "java/lang/RuntimeException";
 static constexpr char cJavaUnsupportedOperationException[] =
@@ -43,6 +45,18 @@ namespace libclp_ffi_java {
     void JavaClassNotFoundException::throw_in_java (JNIEnv* jni_env, const char* class_name) {
         JavaException::throw_in_java(jni_env, cJavaClassNotFoundExceptionSignature,
                                      string("Couldn't find ") + class_name);
+    }
+
+    JavaIllegalArgumentException::JavaIllegalArgumentException (
+            const char* filename,
+            int line_number,
+            JNIEnv* jni_env,
+            const string& message
+    ) : JavaException(ErrorCode_Failure, filename, line_number, jni_env,
+                      cJavaIllegalArgumentExceptionSignature, message) {}
+
+    void JavaIllegalArgumentException::throw_in_java (JNIEnv* jni_env, const string& message) {
+        JavaException::throw_in_java(jni_env, cJavaIllegalArgumentExceptionSignature, message);
     }
 
     JavaIOException::JavaIOException (const char* filename, int line_number,
