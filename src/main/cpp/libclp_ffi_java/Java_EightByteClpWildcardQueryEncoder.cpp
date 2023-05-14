@@ -212,7 +212,7 @@ static jobjectArray encode_native (
                                         "Failed to assign subquery to array in JVM");
         }
 
-        // Delete local references so we don't overwhelm the JVM
+        // Delete local references to avoid running out of memory in the JVM
         jni_env->DeleteLocalRef(Java_logtypeQuery);
         jni_env->DeleteLocalRef(Java_dictVarBounds);
         jni_env->DeleteLocalRef(Java_encodedVars);
