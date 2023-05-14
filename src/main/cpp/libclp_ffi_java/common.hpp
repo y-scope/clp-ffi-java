@@ -73,6 +73,15 @@ namespace libclp_ffi_java {
     }
 
     /**
+     * Gets a Java global reference (persists between JNI calls) to the Java
+     * class with the given signature
+     * @param jni_env
+     * @param class_signature
+     * @return The reference
+     */
+    jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature);
+
+    /**
      * Validates that the given version names for the variables schema and
      * variable encoding methods match the versions currently used by this
      * library.

@@ -12,6 +12,21 @@ using ffi::cVariablesSchemaVersion;
 using std::string_view;
 
 namespace libclp_ffi_java {
+    jclass get_class_global_ref (JNIEnv* jni_env, const char* class_signature) {
+        auto local_class_ref = jni_env->FindClass(class_signature);
+        if (nullptr == local_class_ref) {
+            throw JavaClassNotFoundException(__FILENAME__, __LINE__, jni_env, class_signature);
+        }
+        auto global_class_ref = reinterpret_cast<jclass>(jni_env->NewGlobalRef(local_class_ref));
+        if (nullptr == global_class_ref) {
+            jni_env->DeleteLocalRef(local_class_ref);
+            throw JavaRuntimeException(__FILENAME__, __LINE__, jni_env, "NewGlobalRef failed");
+        }
+        jni_env->DeleteLocalRef(local_class_ref);
+
+        return global_class_ref;
+    }
+
     void validate_variable_handling_rule_versions (
             JNIEnv* jni_env,
             jbyteArray Java_variablesSchemaVersion,
