@@ -40,10 +40,8 @@ public class MessageDecoder {
   }
 
   private native void setVariableHandlingRuleVersions (
-      byte[] variablesSchemaVersion,
-      int variablesSchemaVersionLen,
-      byte[] variableEncodingMethodsVersion,
-      int variableEncodingMethodsVersionLen
+      byte[] variablesSchemaVersion, int variablesSchemaVersionLen,
+      byte[] variableEncodingMethodsVersion, int variableEncodingMethodsVersionLen
   ) throws UnsupportedOperationException;
 
   /**
@@ -80,8 +78,11 @@ public class MessageDecoder {
     byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
     byte[] messageBytes = decodeMessageNative(
         logtypeBytes, logtypeBytes.length, allDictionaryVars,
-        null == allDictionaryVars ? 0 : allDictionaryVars.length, dictionaryVarEndOffsets,
-        encodedVars, null == encodedVars ? 0 : encodedVars.length);
+        null == allDictionaryVars ? 0 : allDictionaryVars.length,
+        dictionaryVarEndOffsets,
+        null == dictionaryVarEndOffsets ? 0 : dictionaryVarEndOffsets.length,
+        encodedVars,
+        null == encodedVars ? 0 : encodedVars.length);
     return new String(messageBytes, StandardCharsets.UTF_8);
   }
 
@@ -94,15 +95,19 @@ public class MessageDecoder {
    * @param allDictionaryVarsLen
    * @param dictionaryVarEndOffsets The end-offset of each dictionary variable
    *                                in {@code allDictionaryVars}
+   * @param dictionaryVarEndOffsetsLen
    * @param encodedVars The message's encoded variables
    * @param encodedVarsLen
    * @return The decoded message
    * @throws IOException if the delimiters in the logtype don't match the number
    * of variables.
    */
-  private native byte[] decodeMessageNative(byte[] logtype, int logtypeLen,
-      byte[] allDictionaryVars, int allDictionaryVarsLen, int[] dictionaryVarEndOffsets,
-      long[] encodedVars, int encodedVarsLen) throws IOException;
+  private native byte[] decodeMessageNative(
+      byte[] logtype, int logtypeLen,
+      byte[] allDictionaryVars, int allDictionaryVarsLen,
+      int[] dictionaryVarEndOffsets, int dictionaryVarEndOffsetsLen,
+      long[] encodedVars, int encodedVarsLen
+  ) throws IOException;
 
   /**
    * Checks whether any encoded integer variable matches the given wildcard
@@ -127,12 +132,9 @@ public class MessageDecoder {
   }
 
   private native boolean wildcardQueryMatchesAnyIntVarNative(
-      byte[] wildcardQuery,
-      int wildcardQueryLen,
-      byte[] logtype,
-      int logtypeLen,
-      long[] encodedVars,
-      int encodedVarsLen
+      byte[] wildcardQuery, int wildcardQueryLen,
+      byte[] logtype, int logtypeLen,
+      long[] encodedVars, int encodedVarsLen
   ) throws IOException;
 
   /**
@@ -153,16 +155,14 @@ public class MessageDecoder {
     byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
     return wildcardQueryMatchesAnyFloatVarNative(
         wildcardQueryBytes, wildcardQueryBytes.length, logtypeBytes, logtypeBytes.length,
-        encodedVars, null == encodedVars ? 0 : encodedVars.length);
+        encodedVars,
+        null == encodedVars ? 0 : encodedVars.length);
   }
 
   private native boolean wildcardQueryMatchesAnyFloatVarNative(
-      byte[] wildcardQuery,
-      int wildcardQueryLen,
-      byte[] logtype,
-      int logtypeLen,
-      long[] encodedVars,
-      int encodedVarsLen
+      byte[] wildcardQuery, int wildcardQueryLen,
+      byte[] logtype, int logtypeLen,
+      long[] encodedVars, int encodedVarsLen
   ) throws IOException;
 
   /**

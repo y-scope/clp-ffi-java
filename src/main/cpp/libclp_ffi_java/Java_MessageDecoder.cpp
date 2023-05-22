@@ -63,15 +63,18 @@ static void batch_encoded_vars_wildcard_match_native (
  * @param Java_allDictionaryVars
  * @param all_dictionary_vars_len
  * @param Java_dictionaryVarEndOffsets
+ * @param dictionary_var_end_offsets_len
  * @param Java_encodedVars
  * @param encoded_vars_len
  * @return The decoded message
  */
-static jbyteArray decode_message_native (JNIEnv* jni_env, jbyteArray Java_logtype,
-                                         jint logtype_len, jbyteArray Java_allDictionaryVars,
-                                         jint all_dictionary_vars_len,
-                                         jintArray Java_dictionaryVarEndOffsets,
-                                         jlongArray Java_encodedVars, jint encoded_vars_len);
+static jbyteArray decode_message_native (
+        JNIEnv* jni_env,
+        jbyteArray Java_logtype, jint logtype_len,
+        jbyteArray Java_allDictionaryVars, jint all_dictionary_vars_len,
+        jintArray Java_dictionaryVarEndOffsets, jint dictionary_var_end_offsets_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
+);
 
 /**
  * Wrapper around wildcard_query_matches_any_encoded_var which
@@ -87,18 +90,18 @@ static jbyteArray decode_message_native (JNIEnv* jni_env, jbyteArray Java_logtyp
  */
 template <VariablePlaceholder var_placeholder>
 static bool jni_wildcard_query_matches_any_encoded_var (
-        JNIEnv* jni_env, jbyteArray Java_wildcardQuery, jint wildcard_query_len,
-        jbyteArray Java_logtype, jint logtype_len, jlongArray Java_encodedVars,
-        jint encoded_vars_len);
+        JNIEnv* jni_env,
+        jbyteArray Java_wildcardQuery, jint wildcard_query_len,
+        jbyteArray Java_logtype, jint logtype_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
+);
 
 JNIEXPORT void JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_setVariableHandlingRuleVersions (
         JNIEnv* jni_env,
         jobject,
-        jbyteArray Java_variablesSchemaVersion,
-        jint variables_schema_version_len,
-        jbyteArray Java_variableEncodingMethodsVersion,
-        jint variable_encoding_methods_len
+        jbyteArray Java_variablesSchemaVersion, jint variables_schema_version_len,
+        jbyteArray Java_variableEncodingMethodsVersion, jint variable_encoding_methods_len
 ) {
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     libclp_ffi_java::validate_variable_handling_rule_versions(jni_env, Java_variablesSchemaVersion,
@@ -112,18 +115,16 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_decodeMessageNative (
         JNIEnv* jni_env,
         jobject,
-        jbyteArray Java_logtype,
-        jint logtype_len,
-        jbyteArray Java_allDictionaryVars,
-        jint all_dictionary_vars_len,
-        jintArray Java_dictionaryVarEndOffsets,
-        jlongArray Java_encodedVars,
-        jint encoded_vars_len
+        jbyteArray Java_logtype, jint logtype_len,
+        jbyteArray Java_allDictionaryVars, jint all_dictionary_vars_len,
+        jintArray Java_dictionaryVarEndOffsets, jint dictionary_var_end_offsets_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
 ) {
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     return decode_message_native(jni_env, Java_logtype, logtype_len, Java_allDictionaryVars,
                                  all_dictionary_vars_len, Java_dictionaryVarEndOffsets,
-                                 Java_encodedVars, encoded_vars_len);
+                                 dictionary_var_end_offsets_len, Java_encodedVars,
+                                 encoded_vars_len);
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END(nullptr)
 }
 
@@ -131,12 +132,9 @@ JNIEXPORT jboolean JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_wildcardQueryMatchesAnyFloatVarNative (
         JNIEnv* jni_env,
         jobject,
-        jbyteArray Java_wildcardQuery,
-        jint wildcard_query_len,
-        jbyteArray Java_logtype,
-        jint logtype_len,
-        jlongArray Java_encodedVars,
-        jint encoded_vars_len
+        jbyteArray Java_wildcardQuery, jint wildcard_query_len,
+        jbyteArray Java_logtype, jint logtype_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
 ) {
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     return jni_wildcard_query_matches_any_encoded_var<VariablePlaceholder::Float>(
@@ -149,12 +147,9 @@ JNIEXPORT jboolean JNICALL
 Java_com_yscope_clp_compressorfrontend_MessageDecoder_wildcardQueryMatchesAnyIntVarNative (
         JNIEnv* jni_env,
         jobject,
-        jbyteArray Java_wildcardQuery,
-        jint wildcard_query_len,
-        jbyteArray Java_logtype,
-        jint logtype_len,
-        jlongArray Java_encodedVars,
-        jint encoded_vars_len
+        jbyteArray Java_wildcardQuery, jint wildcard_query_len,
+        jbyteArray Java_logtype, jint logtype_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
 ) {
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     return jni_wildcard_query_matches_any_encoded_var<VariablePlaceholder::Integer>(
@@ -296,12 +291,13 @@ static void batch_encoded_vars_wildcard_match_native (
     }
 }
 
-static jbyteArray decode_message_native (JNIEnv* jni_env, jbyteArray Java_logtype,
-                                         jint logtype_len, jbyteArray Java_allDictionaryVars,
-                                         jint all_dictionary_vars_len,
-                                         jintArray Java_dictionaryVarEndOffsets,
-                                         jlongArray Java_encodedVars, jint encoded_vars_len)
-{
+static jbyteArray decode_message_native (
+        JNIEnv* jni_env,
+        jbyteArray Java_logtype, jint logtype_len,
+        jbyteArray Java_allDictionaryVars, jint all_dictionary_vars_len,
+        jintArray Java_dictionaryVarEndOffsets, jint dictionary_var_end_offsets_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
+) {
     // Get logtype
     auto logtype_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(jni_env, Java_logtype,
                                                                               JNI_ABORT);
@@ -329,7 +325,7 @@ static jbyteArray decode_message_native (JNIEnv* jni_env, jbyteArray Java_logtyp
                 encoded_vars_len,
                 all_dictionary_vars,
                 dictionary_var_end_offsets.get(),
-                all_dictionary_vars_len
+                dictionary_var_end_offsets_len
         );
 
         auto Java_message = libclp_ffi_java::new_java_primitive_array<jbyteArray, jbyte>(
@@ -342,10 +338,11 @@ static jbyteArray decode_message_native (JNIEnv* jni_env, jbyteArray Java_logtyp
 
 template <VariablePlaceholder var_placeholder>
 static bool jni_wildcard_query_matches_any_encoded_var (
-        JNIEnv* jni_env, jbyteArray Java_wildcardQuery, jint wildcard_query_len,
-        jbyteArray Java_logtype, jint logtype_len, jlongArray Java_encodedVars,
-        jint encoded_vars_len)
-{
+        JNIEnv* jni_env,
+        jbyteArray Java_wildcardQuery, jint wildcard_query_len,
+        jbyteArray Java_logtype, jint logtype_len,
+        jlongArray Java_encodedVars, jint encoded_vars_len
+) {
     // Get logtype
     auto logtype_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
             jni_env, Java_logtype, JNI_ABORT);

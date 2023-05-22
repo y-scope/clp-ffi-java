@@ -37,9 +37,7 @@ public abstract class AbstractClpWildcardQueryEncoder {
   }
 
   private native void setVariableHandlingRuleVersions (
-      byte[] variablesSchemaVersion,
-      int variablesSchemaVersionLen,
-      byte[] variableEncodingMethodsVersion,
-      int variableEncodingMethodsVersionLen
+      byte[] variablesSchemaVersion, int variablesSchemaVersionLen,
+      byte[] variableEncodingMethodsVersion, int variableEncodingMethodsVersionLen
   ) throws UnsupportedOperationException;
 }

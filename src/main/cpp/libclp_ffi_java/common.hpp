@@ -24,7 +24,7 @@ namespace libclp_ffi_java {
      * @param Java_array The Java primitive array
      * @param release_mode The JNI primitive array release mode (see the
      * docs for JNIEnv::Release<Primitive>ArrayElements)
-     * @return A unique pointer to the native version of the array, or nullptr
+     * @return A unique pointer to the native version of the array, or a nullptr
      * if the Java array pointer is null
      * @throw libclp_ffi_java::JavaExceptionOccurred if we couldn't get the
      * array due to a Java exception.
@@ -94,10 +94,8 @@ namespace libclp_ffi_java {
      */
     void validate_variable_handling_rule_versions (
             JNIEnv* jni_env,
-            jbyteArray Java_variablesSchemaVersion,
-            jint variables_schema_version_len,
-            jbyteArray Java_variableEncodingMethodsVersion,
-            jint variable_encoding_methods_len
+            jbyteArray Java_variablesSchemaVersion, jint variables_schema_version_len,
+            jbyteArray Java_variableEncodingMethodsVersion, jint variable_encoding_methods_len
     );
 }
 
