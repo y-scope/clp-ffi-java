@@ -13,6 +13,7 @@
 // CLP
 #include "../submodules/clp/components/core/src/Defs.h"
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "../submodules/clp/components/core/src/type_utils.hpp"
 
 // JNI
 #include <com_yscope_clp_compressorfrontend_MessageEncoder.h>
@@ -31,7 +32,6 @@ using libclp_ffi_java::Java_EncodedMessage_encodedVars;
 using libclp_ffi_java::Java_EncodedMessage_logtype;
 using libclp_ffi_java::JavaIOException;
 using libclp_ffi_java::new_java_primitive_array;
-using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 using std::string;
 using std::vector;

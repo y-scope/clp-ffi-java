@@ -8,8 +8,9 @@
 #include <com_yscope_clp_compressorfrontend_MessageDecoder.h>
 
 // Project headers
-#include "../submodules/clp/components/core/src/string_utils.hpp"
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "../submodules/clp/components/core/src/string_utils.hpp"
+#include "../submodules/clp/components/core/src/type_utils.hpp"
 #include "common.hpp"
 #include "JavaException.hpp"
 
@@ -23,7 +24,6 @@ using libclp_ffi_java::get_java_primitive_array_elements;
 using libclp_ffi_java::JavaExceptionOccurred;
 using libclp_ffi_java::JavaIOException;
 using libclp_ffi_java::JavaRuntimeException;
-using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 
 // Local function prototypes

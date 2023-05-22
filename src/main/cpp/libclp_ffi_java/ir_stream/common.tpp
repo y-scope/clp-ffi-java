@@ -10,9 +10,9 @@
 #include <jni.h>
 
 // Project headers
-#include "../../submodules/clp/components/core/src/type_utils.hpp"
 #include "../../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
 #include "../../submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.hpp"
+#include "../../submodules/clp/components/core/src/type_utils.hpp"
 #include "../ClpIrOutputStreamState.hpp"
 #include "../common.hpp"
 #include "../JavaException.hpp"
