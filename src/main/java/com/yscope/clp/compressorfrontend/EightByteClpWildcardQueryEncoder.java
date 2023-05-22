@@ -1,6 +1,9 @@
 package com.yscope.clp.compressorfrontend;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Derived version of {@link AbstractClpWildcardQueryEncoder} specifically using
@@ -11,8 +14,8 @@ public class EightByteClpWildcardQueryEncoder extends AbstractClpWildcardQueryEn
    * @see AbstractClpWildcardQueryEncoder#AbstractClpWildcardQueryEncoder
    */
   public EightByteClpWildcardQueryEncoder (
-      String variablesSchemaVersion,
-      String variableEncodingMethodsVersion
+      @NotNull String variablesSchemaVersion,
+      @NotNull String variableEncodingMethodsVersion
   ) throws UnsupportedOperationException {
     super(variablesSchemaVersion, variableEncodingMethodsVersion);
   }
@@ -29,8 +32,9 @@ public class EightByteClpWildcardQueryEncoder extends AbstractClpWildcardQueryEn
    * @return The subqueries
    */
   public EightByteClpEncodedSubquery[] encode (
-      String wildcardQuery
+      @NotNull String wildcardQuery
   ) throws IllegalArgumentException {
+    Objects.requireNonNull(wildcardQuery);
     byte[] wildcardQueryBytes = wildcardQuery.getBytes(StandardCharsets.ISO_8859_1);
     return encodeNative(wildcardQueryBytes, wildcardQueryBytes.length);
   }

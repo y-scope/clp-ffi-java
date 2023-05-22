@@ -3,6 +3,9 @@ package com.yscope.clp.compressorfrontend;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class to decode or search within encoded messages
@@ -23,16 +26,24 @@ public class MessageDecoder {
    * unsupported.
    */
   public MessageDecoder(
-      String variablesSchemaVersion,
-      String variableEncodingMethodsVersion
+      @NotNull String variablesSchemaVersion,
+      @NotNull String variableEncodingMethodsVersion
   ) throws UnsupportedOperationException {
-    setVariableHandlingRuleVersions(variablesSchemaVersion.getBytes(StandardCharsets.ISO_8859_1),
-        variableEncodingMethodsVersion.getBytes(StandardCharsets.ISO_8859_1));
+    Objects.requireNonNull(variablesSchemaVersion);
+    Objects.requireNonNull(variableEncodingMethodsVersion);
+    byte[] schemaVersionBytes = variablesSchemaVersion.getBytes(StandardCharsets.ISO_8859_1);
+    byte[] encodingMethodsVersionBytes =
+        variableEncodingMethodsVersion.getBytes(StandardCharsets.ISO_8859_1);
+    setVariableHandlingRuleVersions(schemaVersionBytes, schemaVersionBytes.length,
+                                    encodingMethodsVersionBytes,
+                                    encodingMethodsVersionBytes.length);
   }
 
   private native void setVariableHandlingRuleVersions (
       byte[] variablesSchemaVersion,
-      byte[] variableEncodingMethodsVersion
+      int variablesSchemaVersionLen,
+      byte[] variableEncodingMethodsVersion,
+      int variableEncodingMethodsVersionLen
   ) throws UnsupportedOperationException;
 
   /**
@@ -44,40 +55,54 @@ public class MessageDecoder {
    * @throws IOException if decoding fails
    */
   public String decodeMessage(
-      String logtype,
+      @NotNull String logtype,
       String[] dictionaryVars,
       long[] encodedVars
   ) throws IOException {
-    // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
-    int[] dictionaryVarEndOffsets = new int[dictionaryVars.length];
-    ByteArrayOutputStream dictionaryVarsOutputStream = new ByteArrayOutputStream();
-    int lastDictionaryVarEndOffset = 0;
-    for (int i = 0; i < dictionaryVars.length; ++i) {
-      byte[] dictionaryVarBytes = dictionaryVars[i].getBytes(StandardCharsets.UTF_8);
-      dictionaryVarsOutputStream.write(dictionaryVarBytes);
-      lastDictionaryVarEndOffset += dictionaryVarBytes.length;
-      dictionaryVarEndOffsets[i] = lastDictionaryVarEndOffset;
+    Objects.requireNonNull(logtype);
+
+    int[] dictionaryVarEndOffsets = null;
+    byte[] allDictionaryVars = null;
+    if (null != dictionaryVars) {
+      // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
+      dictionaryVarEndOffsets = new int[dictionaryVars.length];
+      ByteArrayOutputStream dictionaryVarsOutputStream = new ByteArrayOutputStream();
+      int lastDictionaryVarEndOffset = 0;
+      for (int i = 0; i < dictionaryVars.length; ++i) {
+        byte[] dictionaryVarBytes = dictionaryVars[i].getBytes(StandardCharsets.UTF_8);
+        dictionaryVarsOutputStream.write(dictionaryVarBytes);
+        lastDictionaryVarEndOffset += dictionaryVarBytes.length;
+        dictionaryVarEndOffsets[i] = lastDictionaryVarEndOffset;
+      }
+      allDictionaryVars = dictionaryVarsOutputStream.toByteArray();
     }
 
-    byte[] messageBytes = decodeMessageNative(logtype.getBytes(StandardCharsets.ISO_8859_1),
-        dictionaryVarsOutputStream.toByteArray(), dictionaryVarEndOffsets, encodedVars);
+    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
+    byte[] messageBytes = decodeMessageNative(
+        logtypeBytes, logtypeBytes.length, allDictionaryVars,
+        null == allDictionaryVars ? 0 : allDictionaryVars.length, dictionaryVarEndOffsets,
+        encodedVars, null == encodedVars ? 0 : encodedVars.length);
     return new String(messageBytes, StandardCharsets.UTF_8);
   }
 
   /**
    * Decodes the message from the given logtype and variables
    * @param logtype The message's logtype
+   * @param logtypeLen
    * @param allDictionaryVars The message's dictionary variables, stored
    *                          back-to-back in a single byte-array
+   * @param allDictionaryVarsLen
    * @param dictionaryVarEndOffsets The end-offset of each dictionary variable
    *                                in {@code allDictionaryVars}
    * @param encodedVars The message's encoded variables
+   * @param encodedVarsLen
    * @return The decoded message
    * @throws IOException if the delimiters in the logtype don't match the number
    * of variables.
    */
-  private native byte[] decodeMessageNative(byte[] logtype, byte[] allDictionaryVars,
-      int[] dictionaryVarEndOffsets, long[] encodedVars) throws IOException;
+  private native byte[] decodeMessageNative(byte[] logtype, int logtypeLen,
+      byte[] allDictionaryVars, int allDictionaryVarsLen, int[] dictionaryVarEndOffsets,
+      long[] encodedVars, int encodedVarsLen) throws IOException;
 
   /**
    * Checks whether any encoded integer variable matches the given wildcard
@@ -88,18 +113,26 @@ public class MessageDecoder {
    * @return true if a match was found, false otherwise
    */
   public boolean wildcardQueryMatchesAnyIntVar(
-      String wildcardQuery,
-      String logtype,
+      @NotNull String wildcardQuery,
+      @NotNull String logtype,
       long[] encodedVars
   ) throws IOException {
-    return wildcardQueryMatchesAnyIntVarNative(wildcardQuery.getBytes(StandardCharsets.ISO_8859_1),
-        logtype.getBytes(StandardCharsets.ISO_8859_1), encodedVars);
+    Objects.requireNonNull(wildcardQuery);
+    Objects.requireNonNull(logtype);
+    byte[] wildcardQueryBytes = wildcardQuery.getBytes(StandardCharsets.ISO_8859_1);
+    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
+    return wildcardQueryMatchesAnyIntVarNative(wildcardQueryBytes, wildcardQueryBytes.length,
+        logtypeBytes, logtypeBytes.length, encodedVars,
+        null == encodedVars ? 0 : encodedVars.length);
   }
 
   private native boolean wildcardQueryMatchesAnyIntVarNative(
       byte[] wildcardQuery,
+      int wildcardQueryLen,
       byte[] logtype,
-      long[] encodedVars
+      int logtypeLen,
+      long[] encodedVars,
+      int encodedVarsLen
   ) throws IOException;
 
   /**
@@ -110,19 +143,26 @@ public class MessageDecoder {
    * @return true if a match was found, false otherwise
    */
   public boolean wildcardQueryMatchesAnyFloatVar(
-      String wildcardQuery,
-      String logtype,
+      @NotNull String wildcardQuery,
+      @NotNull String logtype,
       long[] encodedVars
   ) throws IOException {
+    Objects.requireNonNull(wildcardQuery);
+    Objects.requireNonNull(logtype);
+    byte[] wildcardQueryBytes = wildcardQuery.getBytes(StandardCharsets.ISO_8859_1);
+    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
     return wildcardQueryMatchesAnyFloatVarNative(
-        wildcardQuery.getBytes(StandardCharsets.ISO_8859_1),
-        logtype.getBytes(StandardCharsets.ISO_8859_1), encodedVars);
+        wildcardQueryBytes, wildcardQueryBytes.length, logtypeBytes, logtypeBytes.length,
+        encodedVars, null == encodedVars ? 0 : encodedVars.length);
   }
 
   private native boolean wildcardQueryMatchesAnyFloatVarNative(
       byte[] wildcardQuery,
+      int wildcardQueryLen,
       byte[] logtype,
-      long[] encodedVars
+      int logtypeLen,
+      long[] encodedVars,
+      int encodedVarsLen
   ) throws IOException;
 
   /**
@@ -169,13 +209,20 @@ public class MessageDecoder {
    * @param matchResults Returns the match result per message
    */
   public void batchEncodedVarsWildcardMatch (
-      byte[][] logtypes,
-      long[][] encodedVarArrays,
-      byte[] wildcardVarPlaceholders,
-      byte[] serializedVarWildcardQueries,
-      int[] varWildcardQueryEndIndexes,
-      int[] matchResults
+      @NotNull byte[][] logtypes,
+      @NotNull long[][] encodedVarArrays,
+      @NotNull byte[] wildcardVarPlaceholders,
+      @NotNull byte[] serializedVarWildcardQueries,
+      @NotNull int[] varWildcardQueryEndIndexes,
+      @NotNull int[] matchResults
   ) throws IOException {
+    Objects.requireNonNull(logtypes);
+    Objects.requireNonNull(encodedVarArrays);
+    Objects.requireNonNull(wildcardVarPlaceholders);
+    Objects.requireNonNull(serializedVarWildcardQueries);
+    Objects.requireNonNull(varWildcardQueryEndIndexes);
+    Objects.requireNonNull(matchResults);
+
     // Validate the array lengths
     if (logtypes.length != matchResults.length) {
       throw new IllegalArgumentException("Number of logtypes given doesn't match size of output "

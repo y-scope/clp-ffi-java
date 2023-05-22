@@ -70,8 +70,11 @@ namespace libclp_ffi_java {
         using DeleterType =
                 JavaPrimitiveArrayElementsDeleter<JavaArrayType, NativeArrayElementType>;
         auto array = std::unique_ptr<NativeArrayElementType, DeleterType>{
-                get_array(jni_env, Java_array, nullptr),
+                nullptr == Java_array ? nullptr : get_array(jni_env, Java_array, nullptr),
                 DeleterType{jni_env, Java_array, release_mode}};
+        if (nullptr == Java_array) {
+            return array;
+        }
         auto exception = jni_env->ExceptionOccurred();
         if (nullptr != exception) {
             throw JavaExceptionOccurred(ErrorCode_Failure, __FILENAME__, __LINE__,
