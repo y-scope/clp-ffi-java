@@ -40,8 +40,10 @@ public class MessageDecoder {
   }
 
   private native void setVariableHandlingRuleVersions (
-      byte[] variablesSchemaVersion, int variablesSchemaVersionLen,
-      byte[] variableEncodingMethodsVersion, int variableEncodingMethodsVersionLen
+      byte[] variablesSchemaVersion,
+      int variablesSchemaVersionLen,
+      byte[] variableEncodingMethodsVersion,
+      int variableEncodingMethodsVersionLen
   ) throws UnsupportedOperationException;
 
   /**
@@ -103,10 +105,14 @@ public class MessageDecoder {
    * of variables.
    */
   private native byte[] decodeMessageNative(
-      byte[] logtype, int logtypeLen,
-      byte[] allDictionaryVars, int allDictionaryVarsLen,
-      int[] dictionaryVarEndOffsets, int dictionaryVarEndOffsetsLen,
-      long[] encodedVars, int encodedVarsLen
+      byte[] logtype,
+      int logtypeLen,
+      byte[] allDictionaryVars,
+      int allDictionaryVarsLen,
+      int[] dictionaryVarEndOffsets,
+      int dictionaryVarEndOffsetsLen,
+      long[] encodedVars,
+      int encodedVarsLen
   ) throws IOException;
 
   /**
@@ -132,9 +138,12 @@ public class MessageDecoder {
   }
 
   private native boolean wildcardQueryMatchesAnyIntVarNative(
-      byte[] wildcardQuery, int wildcardQueryLen,
-      byte[] logtype, int logtypeLen,
-      long[] encodedVars, int encodedVarsLen
+      byte[] wildcardQuery,
+      int wildcardQueryLen,
+      byte[] logtype,
+      int logtypeLen,
+      long[] encodedVars,
+      int encodedVarsLen
   ) throws IOException;
 
   /**
@@ -160,9 +169,12 @@ public class MessageDecoder {
   }
 
   private native boolean wildcardQueryMatchesAnyFloatVarNative(
-      byte[] wildcardQuery, int wildcardQueryLen,
-      byte[] logtype, int logtypeLen,
-      long[] encodedVars, int encodedVarsLen
+      byte[] wildcardQuery,
+      int wildcardQueryLen,
+      byte[] logtype,
+      int logtypeLen,
+      long[] encodedVars,
+      int encodedVarsLen
   ) throws IOException;
 
   /**

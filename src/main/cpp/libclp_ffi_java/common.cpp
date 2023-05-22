@@ -29,8 +29,10 @@ namespace libclp_ffi_java {
 
     void validate_variable_handling_rule_versions (
             JNIEnv* jni_env,
-            jbyteArray Java_variablesSchemaVersion, jint variables_schema_version_len,
-            jbyteArray Java_variableEncodingMethodsVersion, jint variable_encoding_methods_len
+            jbyteArray Java_variablesSchemaVersion,
+            jint variables_schema_version_len,
+            jbyteArray Java_variableEncodingMethodsVersion,
+            jint variable_encoding_methods_len
     ) {
         // Validate the schemas version
         auto schema_version_bytes = get_java_primitive_array_elements<jbyteArray, jbyte>(
