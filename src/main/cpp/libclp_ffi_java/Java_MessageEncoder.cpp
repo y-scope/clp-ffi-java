@@ -51,11 +51,15 @@ Java_com_yscope_clp_compressorfrontend_MessageEncoder_setVariableHandlingRuleVer
         JNIEnv* jni_env,
         jobject,
         jbyteArray Java_variablesSchemaVersion,
-        jbyteArray Java_variableEncodingMethodsVersion
+        jint variables_schema_version_len,
+        jbyteArray Java_variableEncodingMethodsVersion,
+        jint variable_encoding_methods_len
 ) {
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_BEGIN()
     libclp_ffi_java::validate_variable_handling_rule_versions(jni_env, Java_variablesSchemaVersion,
-                                                              Java_variableEncodingMethodsVersion);
+                                                              variables_schema_version_len,
+                                                              Java_variableEncodingMethodsVersion,
+                                                              variable_encoding_methods_len);
     LIBCLP_FFI_JAVA_EXCEPTION_CATCHALL_END()
 }
 

@@ -1,6 +1,9 @@
 package com.yscope.clp.compressorfrontend;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class to encode wildcard queries so that they can be used to search
@@ -20,15 +23,23 @@ public abstract class AbstractClpWildcardQueryEncoder {
    * unsupported.
    */
   public AbstractClpWildcardQueryEncoder (
-      String variablesSchemaVersion,
-      String variableEncodingMethodsVersion
+      @NotNull String variablesSchemaVersion,
+      @NotNull String variableEncodingMethodsVersion
   ) throws UnsupportedOperationException {
-    setVariableHandlingRuleVersions(variablesSchemaVersion.getBytes(StandardCharsets.ISO_8859_1),
-        variableEncodingMethodsVersion.getBytes(StandardCharsets.ISO_8859_1));
+    Objects.requireNonNull(variablesSchemaVersion);
+    Objects.requireNonNull(variableEncodingMethodsVersion);
+    byte[] schemaVersionBytes = variablesSchemaVersion.getBytes(StandardCharsets.ISO_8859_1);
+    byte[] encodingMethodsVersionBytes =
+        variableEncodingMethodsVersion.getBytes(StandardCharsets.ISO_8859_1);
+    setVariableHandlingRuleVersions(schemaVersionBytes, schemaVersionBytes.length,
+                                    encodingMethodsVersionBytes,
+                                    encodingMethodsVersionBytes.length);
   }
 
   private native void setVariableHandlingRuleVersions (
       byte[] variablesSchemaVersion,
-      byte[] variableEncodingMethodsVersion
+      int variablesSchemaVersionLen,
+      byte[] variableEncodingMethodsVersion,
+      int variableEncodingMethodsVersionLen
   ) throws UnsupportedOperationException;
 }

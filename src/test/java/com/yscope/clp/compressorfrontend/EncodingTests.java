@@ -12,24 +12,61 @@ public class EncodingTests {
   @Test
   void testEncodingMessages () {
     try {
-      String message = "Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3";
-      EncodedMessage encodedMessage = new EncodedMessage();
       MessageEncoder messageEncoder =
           new MessageEncoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
-              BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
-
-      // Test encoding and decoding
-      messageEncoder.encodeMessage(message, encodedMessage);
-      String logtypeAsString = new String(encodedMessage.logtype, StandardCharsets.ISO_8859_1);
+                             BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
+      EncodedMessage encodedMessage = new EncodedMessage();
       MessageDecoder messageDecoder =
           new MessageDecoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
-              BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
-      String decodedMessage = messageDecoder.decodeMessage(
-          logtypeAsString, encodedMessage.getDictionaryVarsAsStrings(),
+                             BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
+      String message;
+      String decodedMessage;
+
+      // Test encoding and decoding
+      message = "Static text only";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+          encodedMessage.encodedVars);
+      assertEquals(message, decodedMessage);
+
+      message = "dictVar1Only";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+          encodedMessage.encodedVars);
+      assertEquals(message, decodedMessage);
+
+      message = "1.1";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+          encodedMessage.encodedVars);
+      assertEquals(message, decodedMessage);
+
+      message = "One dictVar1";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+          encodedMessage.encodedVars);
+      assertEquals(message, decodedMessage);
+
+      message = "1 encoded var";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+          encodedMessage.encodedVars);
+      assertEquals(message, decodedMessage);
+
+      message = "Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3";
+      messageEncoder.encodeMessage(message, encodedMessage);
+      decodedMessage = messageDecoder.decodeMessage(
+          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
           encodedMessage.encodedVars);
       assertEquals(message, decodedMessage);
 
       // Test searching encoded variables
+      String logtypeAsString = encodedMessage.getLogTypeAsString();
       assertTrue(messageDecoder.wildcardQueryMatchesAnyIntVar("1*3", logtypeAsString,
           encodedMessage.encodedVars));
       assertFalse(messageDecoder.wildcardQueryMatchesAnyIntVar("4*7", logtypeAsString,
@@ -38,6 +75,18 @@ public class EncodingTests {
           encodedMessage.encodedVars));
       assertFalse(messageDecoder.wildcardQueryMatchesAnyFloatVar("1*3", logtypeAsString,
           encodedMessage.encodedVars));
+
+      // Test decoding invalid encoded messages
+      assertThrows(IOException.class, () -> {
+        messageDecoder.decodeMessage(
+            encodedMessage.getLogTypeAsString(), null,
+            encodedMessage.encodedVars);
+      });
+      assertThrows(IOException.class, () -> {
+        messageDecoder.decodeMessage(
+            encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
+            null);
+      });
     } catch (IOException e) {
       fail(e.getMessage());
     }
@@ -113,7 +162,7 @@ public class EncodingTests {
     EncodedMessage encodedMessage = new EncodedMessage();
 
     // Encode some messages
-    final int numMessages = 3;
+    final int numMessages = 5;
     byte[][] logtypes = new byte[numMessages][];
     long[][] encodedVarArrays = new long[numMessages][];
     try {
@@ -132,6 +181,17 @@ public class EncodingTests {
       messageEncoder.encodeMessage("Message with 1 + 1 encoded variables.", encodedMessage);
       logtypes[msgIdx] = encodedMessage.logtype;
       encodedVarArrays[msgIdx] = encodedMessage.encodedVars;
+      ++msgIdx;
+
+      messageEncoder.encodeMessage("Message with dictVar1 and dictVar2.", encodedMessage);
+      logtypes[msgIdx] = encodedMessage.logtype;
+      encodedVarArrays[msgIdx] = encodedMessage.encodedVars;
+      ++msgIdx;
+
+      // Invalid logtype
+      logtypes[msgIdx] = null;
+      encodedVarArrays[msgIdx] = encodedMessage.encodedVars;
+      ++msgIdx;
     } catch (IOException e) {
       fail("Failed to encode messages", e);
     }
@@ -189,5 +249,9 @@ public class EncodingTests {
     assertEquals(0, matchingRows[rowIdx++]);
     // Third row should've matched at least one subquery
     assertTrue(matchingRows[rowIdx++] > 0);
+    // Fourth row shouldn't match any subquery
+    assertEquals(0, matchingRows[rowIdx++]);
+    // Fifth row is invalid and shouldn't match any subquery
+    assertEquals(0, matchingRows[rowIdx++]);
   }
 }
