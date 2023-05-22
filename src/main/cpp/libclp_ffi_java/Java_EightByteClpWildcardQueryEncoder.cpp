@@ -13,6 +13,7 @@
 #include "../submodules/clp/components/core/src/ffi/search/QueryMethodFailed.hpp"
 #include "../submodules/clp/components/core/src/ffi/search/WildcardToken.hpp"
 #include "../submodules/clp/components/core/src/string_utils.hpp"
+#include "../submodules/clp/components/core/src/type_utils.hpp"
 #include "common.hpp"
 #include "GeneralException.hpp"
 #include "JavaException.hpp"
@@ -31,7 +32,6 @@ using libclp_ffi_java::JavaIllegalArgumentException;
 using libclp_ffi_java::JavaRuntimeException;
 using libclp_ffi_java::JavaUnsupportedOperationException;
 using libclp_ffi_java::new_java_primitive_array;
-using libclp_ffi_java::size_checked_pointer_cast;
 using std::string_view;
 using std::string;
 using std::variant;

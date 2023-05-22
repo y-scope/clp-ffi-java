@@ -5,6 +5,7 @@
 
 // Project headers
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "../submodules/clp/components/core/src/type_utils.hpp"
 #include "JavaException.hpp"
 
 using ffi::cVariableEncodingMethodsVersion;
