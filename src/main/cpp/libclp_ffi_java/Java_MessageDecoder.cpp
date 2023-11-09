@@ -9,6 +9,7 @@
 
 // Project headers
 #include "../submodules/clp/components/core/src/ffi/encoding_methods.hpp"
+#include "../submodules/clp/components/core/src/ir/parsing.hpp"
 #include "../submodules/clp/components/core/src/string_utils.hpp"
 #include "../submodules/clp/components/core/src/type_utils.hpp"
 #include "common.hpp"
@@ -16,9 +17,9 @@
 
 using ffi::decode_message;
 using ffi::eight_byte_encoded_variable_t;
-using ffi::VariablePlaceholder;
 using ffi::wildcard_match_encoded_vars;
 using ffi::wildcard_query_matches_any_encoded_var;
+using ir::VariablePlaceholder;
 using libclp_ffi_java::cJSizeMax;
 using libclp_ffi_java::get_java_primitive_array_elements;
 using libclp_ffi_java::JavaExceptionOccurred;

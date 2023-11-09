@@ -12,6 +12,7 @@
 #include "../submodules/clp/components/core/src/ffi/search/query_methods.hpp"
 #include "../submodules/clp/components/core/src/ffi/search/QueryMethodFailed.hpp"
 #include "../submodules/clp/components/core/src/ffi/search/WildcardToken.hpp"
+#include "../submodules/clp/components/core/src/ir/parsing.hpp"
 #include "../submodules/clp/components/core/src/string_utils.hpp"
 #include "../submodules/clp/components/core/src/type_utils.hpp"
 #include "common.hpp"
@@ -127,7 +128,7 @@ static jobjectArray encode_native (
         for (const auto& query_var : query_vars) {
             auto success = std::visit(overloaded{
                     [&] (const EightByteExactVariableToken& var) {
-                        if (ffi::VariablePlaceholder::Dictionary == var.get_placeholder()) {
+                        if (ir::VariablePlaceholder::Dictionary == var.get_placeholder()) {
                             // These static casts are safe since the original query
                             // length is a jsize
                             dict_var_bounds.push_back(
@@ -144,17 +145,17 @@ static jobjectArray encode_native (
                             case ffi::search::TokenType::IntegerVariable:
                                 wildcard_var_placeholders.push_back(
                                         enum_to_underlying_type(
-                                                ffi::VariablePlaceholder::Integer));
+                                                ir::VariablePlaceholder::Integer));
                                 break;
                             case ffi::search::TokenType::FloatVariable:
                                 wildcard_var_placeholders.push_back(
                                         enum_to_underlying_type(
-                                                ffi::VariablePlaceholder::Float));
+                                                ir::VariablePlaceholder::Float));
                                 break;
                             case ffi::search::TokenType::DictionaryVariable:
                                 wildcard_var_placeholders.push_back(
                                         enum_to_underlying_type(
-                                                ffi::VariablePlaceholder::Dictionary));
+                                                ir::VariablePlaceholder::Dictionary));
                                 break;
                             default:
                                 // This should never happen

@@ -26,10 +26,10 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/ClpIrOutputStreamState.hpp
         src/main/cpp/libclp_ffi_java/common.cpp
         src/main/cpp/libclp_ffi_java/common.hpp
-        src/main/cpp/libclp_ffi_java/common.tpp
+        src/main/cpp/libclp_ffi_java/common.inc
         src/main/cpp/libclp_ffi_java/GeneralException.hpp
         src/main/cpp/libclp_ffi_java/ir_stream/common.hpp
-        src/main/cpp/libclp_ffi_java/ir_stream/common.tpp
+        src/main/cpp/libclp_ffi_java/ir_stream/common.inc
         src/main/cpp/libclp_ffi_java/Java_AbstractClpIrOutputStream.cpp
         src/main/cpp/libclp_ffi_java/Java_AbstractClpWildcardQueryEncoder.cpp
         src/main/cpp/libclp_ffi_java/Java_EightByteClpIrOutputStream.cpp
@@ -45,7 +45,7 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/libclp_ffi_java/static_init.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.hpp
-        src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.tpp
+        src/main/cpp/submodules/clp/components/core/src/ffi/encoding_methods.inc
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/encoding_methods.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/ir_stream/protocol_constants.hpp
@@ -63,9 +63,11 @@ add_library(clp-ffi-java SHARED
         src/main/cpp/submodules/clp/components/core/src/ffi/search/Subquery.hpp
         src/main/cpp/submodules/clp/components/core/src/ffi/search/WildcardToken.cpp
         src/main/cpp/submodules/clp/components/core/src/ffi/search/WildcardToken.hpp
+        src/main/cpp/submodules/clp/components/core/src/ir/parsing.cpp
+        src/main/cpp/submodules/clp/components/core/src/ir/parsing.hpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.cpp
         src/main/cpp/submodules/clp/components/core/src/string_utils.hpp
-        src/main/cpp/submodules/clp/components/core/src/string_utils.tpp
+        src/main/cpp/submodules/clp/components/core/src/string_utils.inc
         target/include/com_yscope_clp_compressorfrontend_MessageDecoder.h
         target/include/com_yscope_clp_compressorfrontend_MessageEncoder.h
         target/include/com_yscope_clp_irstream_AbstractClpIrOutputStream.h
@@ -76,6 +78,7 @@ target_compile_features(clp-ffi-java
         PRIVATE cxx_std_17
         )
 target_include_directories(clp-ffi-java PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/submodules/clp/components/core/submodules
         ${JNI_INCLUDE_DIRS}
         target/include
         )

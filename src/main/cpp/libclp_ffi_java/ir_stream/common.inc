@@ -1,5 +1,5 @@
-#ifndef LIBCLP_FFI_JAVA_IR_STREAM_COMMON_TPP
-#define LIBCLP_FFI_JAVA_IR_STREAM_COMMON_TPP
+#ifndef LIBCLP_FFI_JAVA_IR_STREAM_COMMON_INC
+#define LIBCLP_FFI_JAVA_IR_STREAM_COMMON_INC
 
 // C++ standard libraries
 #include <cstdint>
@@ -125,4 +125,4 @@ namespace libclp_ffi_java::ir_stream {
     }
 }
 
-#endif //LIBCLP_FFI_JAVA_IR_STREAM_COMMON_TPP
+#endif //LIBCLP_FFI_JAVA_IR_STREAM_COMMON_INC

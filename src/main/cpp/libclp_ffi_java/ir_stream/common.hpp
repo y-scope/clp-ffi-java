@@ -60,6 +60,6 @@ namespace libclp_ffi_java::ir_stream {
                                  jint message_length);
 }
 
-#include "common.tpp"
+#include "common.inc"
 
 #endif //LIBCLP_FFI_JAVA_IR_STREAM_COMMON_HPP
