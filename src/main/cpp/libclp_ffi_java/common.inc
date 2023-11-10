@@ -1,5 +1,5 @@
-#ifndef LIBCLP_FFI_JAVA_COMMON_TPP
-#define LIBCLP_FFI_JAVA_COMMON_TPP
+#ifndef LIBCLP_FFI_JAVA_COMMON_INC
+#define LIBCLP_FFI_JAVA_COMMON_INC
 
 // C++ standard libraries
 #include <functional>
@@ -170,4 +170,4 @@ namespace libclp_ffi_java {
     }
 }
 
-#endif // LIBCLP_FFI_JAVA_COMMON_TPP
+#endif // LIBCLP_FFI_JAVA_COMMON_INC

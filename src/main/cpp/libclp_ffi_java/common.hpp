@@ -86,6 +86,6 @@ namespace libclp_ffi_java {
     );
 }
 
-#include "common.tpp"
+#include "common.inc"
 
 #endif // LIBCLP_FFI_JAVA_COMMON_HPP
