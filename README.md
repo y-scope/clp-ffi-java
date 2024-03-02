@@ -7,11 +7,15 @@ a foreign function interface (FFI).
 * A C++ compiler that supports C++-17
 * CMake 3.5.1 or higher
 
-# Common build commands
+# Setup
+
 * Initialize git submodules
   ```shell
   git submodule update --init --recursive
   ```
+  * You should run this command any time you update this repo's submodules.
+
+# Common build commands
 
 * Build and test
   ```shell
