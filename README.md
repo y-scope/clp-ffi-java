@@ -8,6 +8,10 @@ a foreign function interface (FFI).
 * CMake 3.5.1 or higher
 
 # Common build commands
+* Initialize git submodules
+  ```shell
+  git submodule update --init --recursive
+  ```
 
 * Build and test
   ```shell
