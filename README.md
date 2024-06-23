@@ -58,7 +58,6 @@ OS, you can submit a [feature request][feature-req], or use our [lint] workflow 
 
 To run the linting tools, besides commonly installed tools like `tar`, you'll need:
 
-* `curl`
 * `md5sum`
 * Python 3.8 or newer
 * python3-venv
