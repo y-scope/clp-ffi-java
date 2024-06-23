@@ -4,14 +4,14 @@ description: "Builds libclp-ffi-java on the current platform"
 runs:
   using: "composite"
   steps:
-    - name: Build and test
-      run: mvn --batch-mode test
-      shell: bash
+    - name: "Build and test"
+      run: "mvn --batch-mode test"
+      shell: "bash"
 
-    - name: Bundle
+    - name: "Bundle"
       # NOTE: We need the validate phase to run first, to perform a regex
       # replacement on the OS name
       run: |
         mvn --batch-mode validate assembly:single@assemble-lib-dir
         mv ./target/clp-ffi-*-native-lib $GITHUB_WORKSPACE/.
-      shell: bash
+      shell: "bash"
