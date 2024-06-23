@@ -28,7 +28,7 @@ tasks:
       CHECKSUM_FILE: "{{.G_BUILD_DIR}}/{{.TASK}}.md5"
       OUTPUT_DIR: "{{.G_LINT_VENV_DIR}}"
     sources: ["{{.TASKFILE}}", "lint-requirements.txt"]
-    generates: [ "{{.CHECKSUM_FILE}}" ]
+    generates: ["{{.CHECKSUM_FILE}}"]
     deps:
       - task: "utils:validate-checksum"
         vars:
