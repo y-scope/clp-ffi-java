@@ -70,6 +70,6 @@ To run the linting tools, besides commonly installed tools like `tar`, you'll ne
 task lint
 ```
 
-[clp-lint]: https://github.com/y-scope/clp-ffi-java/blob/main/.github/workflows/lint.yaml
 [feature-req]: https://github.com/y-scope/clp-ffi-java/issues/new?assignees=&labels=enhancement&projects=&template=feature-request.yml
+[lint]: https://github.com/y-scope/clp-ffi-java/blob/main/.github/workflows/lint.yaml
 [Task]: https://taskfile.dev/
