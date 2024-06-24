@@ -1,90 +1,90 @@
-name: build-package
+name: "build-package"
 
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
     paths:
-      - '.github/actions/native-lib-build/action.yml'
-      - '.github/workflows/build-and-release-package.yml'
-      - '.github/workflows/build-package.yml'
-      - 'assembly-lib.xml'
-      - 'assembly-package.xml'
-      - 'CMakeLists.txt'
-      - 'pom.xml'
-      - 'src/**'
+      - ".github/actions/native-lib-build/action.yml"
+      - ".github/workflows/build-and-release-package.yml"
+      - ".github/workflows/build-package.yml"
+      - "assembly-lib.xml"
+      - "assembly-package.xml"
+      - "CMakeLists.txt"
+      - "pom.xml"
+      - "src/**"
   pull_request:
-    branches: [ main ]
+    branches: ["main"]
     paths:
-      - '.github/actions/native-lib-build/action.yml'
-      - '.github/workflows/build-and-release-package.yml'
-      - '.github/workflows/build-package.yml'
-      - 'assembly-lib.xml'
-      - 'assembly-package.xml'
-      - 'CMakeLists.txt'
-      - 'pom.xml'
-      - 'src/**'
+      - ".github/actions/native-lib-build/action.yml"
+      - ".github/workflows/build-and-release-package.yml"
+      - ".github/workflows/build-package.yml"
+      - "assembly-lib.xml"
+      - "assembly-package.xml"
+      - "CMakeLists.txt"
+      - "pom.xml"
+      - "src/**"
   workflow_dispatch:
 
-concurrency: build-${{github.ref}}
+concurrency: "build-${{github.ref}}"
 
 jobs:
   build-lib-for-macos:
-    runs-on: macos-latest
+    runs-on: "macos-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: "actions/checkout@v4"
         with:
-          submodules: recursive
+          submodules: "recursive"
 
-      - name: Install requirements
-        run: brew install cmake gcc java11 maven
+      - name: "Install requirements"
+        run: "brew install cmake gcc java11 maven"
 
-      - name: Build native library
-        id: build
-        uses: ./.github/actions/native-lib-build
+      - name: "Build native library"
+        id: "build"
+        uses: "./.github/actions/native-lib-build"
 
-      - uses: actions/upload-artifact@v4
+      - uses: "actions/upload-artifact@v4"
         with:
-          name: libclp-ffi-java-macos
-          path: ${{github.workspace}}/clp-ffi-*-native-lib/
-          if-no-files-found: error
+          name: "libclp-ffi-java-macos"
+          path: "${{github.workspace}}/clp-ffi-*-native-lib/"
+          if-no-files-found: "error"
           retention-days: 1
 
   build-package:
-    needs: build-lib-for-macos
-    runs-on: ubuntu-20.04
+    needs: "build-lib-for-macos"
+    runs-on: "ubuntu-20.04"
     permissions:
-      contents: read
-      packages: write
+      contents: "read"
+      packages: "write"
     steps:
-      - uses: actions/checkout@v4
+      - uses: "actions/checkout@v4"
         with:
-          submodules: recursive
+          submodules: "recursive"
 
-      - uses: actions/setup-java@v4
+      - uses: "actions/setup-java@v4"
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          server-id: 'github'
+          java-version: "11"
+          distribution: "temurin"
+          server-id: "github"
 
-      - name: Install requirements
+      - name: "Install requirements"
         run: |
           sudo apt update
           sudo apt install -y build-essential cmake
 
-      - name: Build native library for Linux
-        id: build
-        uses: ./.github/actions/native-lib-build
+      - name: "Build native library for Linux"
+        id: "build"
+        uses: "./.github/actions/native-lib-build"
 
-      - uses: actions/download-artifact@v4
+      - uses: "actions/download-artifact@v4"
         with:
-          name: libclp-ffi-java-macos
-          path: ./target/.
+          name: "libclp-ffi-java-macos"
+          path: "./target/."
 
-      - name: Build package and run tests
-        run: mvn --batch-mode test
+      - name: "Build package and run tests"
+        run: "mvn --batch-mode test"
 
-      - name: Deploy to GitHub
-        if: github.event_name != 'pull_request'
-        run: mvn --batch-mode deploy -DskipTests -Pgithub_release
+      - name: "Deploy to GitHub"
+        if: "github.event_name != 'pull_request'"
+        run: "mvn --batch-mode deploy -DskipTests -Pgithub_release"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

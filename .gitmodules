@@ -1,3 +1,6 @@
 [submodule "src/main/cpp/submodules/clp"]
 	path = src/main/cpp/submodules/clp
 	url = https://github.com/y-scope/clp.git
+[submodule "tools/yscope-dev-utils"]
+	path = tools/yscope-dev-utils
+	url = https://github.com/y-scope/yscope-dev-utils.git
