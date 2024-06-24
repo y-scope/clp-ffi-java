@@ -51,7 +51,7 @@ jobs:
           if-no-files-found: "error"
           retention-days: 1
 
-  build-package:
+  build-and-release:
     needs: "build-lib-for-macos"
     runs-on: "ubuntu-20.04"
     permissions:
