@@ -26,7 +26,7 @@ on:
       - "src/**/*"
   workflow_dispatch:
 
-# Currency group to prevent multiple workflow instances from trying to publish releases
+# Concurrency group to prevent multiple workflow instances from trying to publish releases
 concurrency: "${{github.workflow}}-${{github.ref}}"
 
 jobs:
