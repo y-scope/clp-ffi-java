@@ -306,7 +306,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/y-scope/clp-ffi-java</url>
+                    <url>https://maven.pkg.github.com/${env.GITHUB_REPOSITORY}</url>
                 </repository>
             </distributionManagement>
         </profile>
