@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         runner: ["macos-13", "macos-14"]
-    runs-on: ${{ matrix.runner }}
+    runs-on: "${{ matrix.runner }}"
     steps:
       - uses: "actions/checkout@v4"
         with:
