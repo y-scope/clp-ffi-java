@@ -85,7 +85,9 @@ jobs:
           retention-days: 1
 
   build-and-release:
-    needs: "build-lib-for-macos"
+    needs:
+      - "build-lib-for-linux-arm64"
+      - "build-lib-for-macos"
     runs-on: "ubuntu-20.04"
     permissions:
       contents: "read"
