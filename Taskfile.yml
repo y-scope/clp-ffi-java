@@ -6,6 +6,8 @@ includes:
 vars:
   G_BUILD_DIR: "{{.ROOT_DIR}}/target"
   G_LINT_VENV_DIR: "{{.G_BUILD_DIR}}/lint-venv"
+  G_PROJECT_VERSION:
+    sh: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout"
 
 tasks:
   default:
@@ -23,7 +25,24 @@ tasks:
     # NOTE: `validate` is necessary to remove spaces from the OS name
     cmd: "mvn generate-resources validate assembly:single@assemble-lib-dir"
 
-  test: "mvn test"
+  test:
+    cmds:
+      - task: "unit-tests"
+      - task: "integration-tests"
+
+  integration-tests:
+    deps: ["package"]
+    vars:
+      MAVEN_REPO_DIR: "{{.G_BUILD_DIR}}/repo/com/yscope/clp/clp-ffi/{{.G_PROJECT_VERSION}}"
+    cmds:
+      - "mkdir -p '{{.MAVEN_REPO_DIR}}'"
+      - "cp '{{.G_BUILD_DIR}}/clp-ffi-{{.G_PROJECT_VERSION}}.jar' '{{.MAVEN_REPO_DIR}}'"
+      - |-
+        cd "integration-tests/jar-load-native-lib"
+        mvn compile
+        mvn exec:java -Dexec.mainClass="com.yscope.clp.Main"
+
+  unit-tests: "mvn test"
 
   lint:
     deps: ["lint-venv"]
