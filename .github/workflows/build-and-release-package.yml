@@ -48,7 +48,7 @@ jobs:
           --platform linux/arm64
           --mount type=bind,source=${{ github.workspace }},target=/mnt/clp
           --workdir /mnt/clp
-          ubuntu:20.04
+          eclipse-temurin:11-jdk-focal
           ./tools/scripts/ubuntu-focal/install-deps-and-build-native-lib.sh
 
       - uses: "actions/upload-artifact@v4"
