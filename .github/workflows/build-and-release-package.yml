@@ -31,7 +31,7 @@ concurrency: "${{github.workflow}}-${{github.ref}}"
 
 jobs:
   build-lib-for-linux-arm64:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -48,7 +48,7 @@ jobs:
           --platform linux/arm64
           --mount type=bind,source=${{ github.workspace }},target=/mnt/clp
           --workdir /mnt/clp
-          eclipse-temurin:11-jdk-focal
+          ubuntu:20.04
           ./tools/scripts/ubuntu-focal/install-deps-and-build-native-lib.sh
 
       - uses: "actions/upload-artifact@v4"
