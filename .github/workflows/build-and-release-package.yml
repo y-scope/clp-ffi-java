@@ -30,7 +30,7 @@ on:
 concurrency: "${{github.workflow}}-${{github.ref}}"
 
 jobs:
-  build-lib-for-linux-arm64:
+  build-lib-for-linux-aarch64:
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v4"
@@ -41,7 +41,7 @@ jobs:
         with:
           platforms: "arm64"
 
-      - name: "Build native library for Linux ARM64"
+      - name: "Build native library for Linux aarch64"
         run: >-
           docker run
           --rm
@@ -53,7 +53,7 @@ jobs:
 
       - uses: "actions/upload-artifact@v4"
         with:
-          name: "libclp-ffi-java-linux-arm64"
+          name: "libclp-ffi-java-linux-aarch64"
           path: "${{github.workspace}}/target/clp-ffi-*-native-lib/"
           if-no-files-found: "error"
           retention-days: 1
@@ -79,14 +79,14 @@ jobs:
           name: >-
             ${{ matrix.runner == 'macos-13'
             && 'libclp-ffi-java-macos-amd64'
-            || 'libclp-ffi-java-macos-arm64' }}
+            || 'libclp-ffi-java-macos-aarch64' }}
           path: "${{github.workspace}}/target/clp-ffi-*-native-lib/"
           if-no-files-found: "error"
           retention-days: 1
 
   build-and-release:
     needs:
-      - "build-lib-for-linux-arm64"
+      - "build-lib-for-linux-aarch64"
       - "build-lib-for-macos"
     runs-on: "ubuntu-20.04"
     permissions:
@@ -127,7 +127,7 @@ jobs:
 
       - uses: "actions/download-artifact@v4"
         with:
-          name: "libclp-ffi-java-linux-arm64"
+          name: "libclp-ffi-java-linux-aarch64"
           path: "./target/."
 
       - uses: "actions/download-artifact@v4"
