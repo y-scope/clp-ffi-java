@@ -37,7 +37,7 @@ tasks:
           Taskfile.yml
 
   clean:
-    cmds: ["rm -rf '{{.G_BUILD_DIR}}'"]
+    cmds: ["rm -rf '{{.G_BUILD_DIR}}' '{{.G_LINT_VENV_DIR}}'"]
 
   lint-venv:
     internal: true
