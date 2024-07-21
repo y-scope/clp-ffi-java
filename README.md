@@ -1,4 +1,4 @@
-clp-ffi-java is a library to encode log messages with 
+clp-ffi-java is a library to encode log messages with
 [CLP](https://github.com/y-scope/clp), and work with the encoded messages using
 a foreign function interface (FFI).
 
@@ -6,6 +6,7 @@ a foreign function interface (FFI).
 
 * A C++ compiler that supports C++-17
 * CMake 3.5.1 or higher
+* [Task]
 
 # Setup
 
@@ -17,32 +18,37 @@ a foreign function interface (FFI).
 
 # Common build commands
 
-* Build and test
-  ```shell
-  mvn package
-  ```
-* Build without any extras
-  ```shell
-  mvn package -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip
-  ```
-* Generate the JNI headers
-  ```shell
-  mvn generate-sources
-  ```
-* Build the native library
-  ```shell
-  mvn generate-resources
-  ```
-* Build and package the native library
-  ```shell
-  mvn generate-resources validate assembly:single@assemble-lib-dir
-  ```
-  * The validate phase is necessary to remove spaces from the OS name
+Build and test:
+```shell
+task
+# or task package-and-test
+```
+
+Build without testing:
+```shell
+task package
+```
+
+Build without any extras:
+```shell
+task package-basic
+```
+
+Generate the JNI headers:
+```shell
+task jni-headers
+```
+
+Build and package the native library:
+```shell
+task native-lib
+```
 
 # Testing
 
+Run tests:
 ```shell
-mvn test
+task test
 ```
 
 # Linting
@@ -61,7 +67,6 @@ To run the linting tools, besides commonly installed tools like `tar`, you'll ne
 * `md5sum`
 * Python 3.8 or newer
 * python3-venv
-* [Task]
 
 ## Running the linters
 

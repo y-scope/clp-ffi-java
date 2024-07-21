@@ -8,6 +8,23 @@ vars:
   G_LINT_VENV_DIR: "{{.G_BUILD_DIR}}/lint-venv"
 
 tasks:
+  default:
+    deps: ["package-and-test"]
+
+  package-and-test: "mvn package"
+
+  package: "mvn package -DskipTests"
+
+  package-basic: "mvn package -DskipTests -Dmaven.javadoc.skip=true -Dmaven.source.skip"
+
+  jni-headers: "mvn generate-sources"
+
+  native-lib:
+    # NOTE: `validate` is necessary to remove spaces from the OS name
+    cmd: "mvn generate-resources validate assembly:single@assemble-lib-dir"
+
+  test: "mvn test"
+
   lint:
     deps: ["lint-venv"]
     cmds:
