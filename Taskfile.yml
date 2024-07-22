@@ -31,12 +31,15 @@ tasks:
       - task: "integration-tests"
 
   integration-tests:
-    deps: ["package"]
-    vars:
-      MAVEN_REPO_DIR: "{{.G_BUILD_DIR}}/repo/com/yscope/clp/clp-ffi/{{.G_PROJECT_VERSION}}"
+    env:
+      # Use a local directory for the Maven repo so that we can install the jar (for the integration
+      # tests to use) without affecting the user's environment.
+      # NOTE: Maven doesn't strip quotes around the value, but treats everything on the right hand
+      # side of the equals sign as the value; so we don't need to quote the path.
+      MAVEN_OPTS: "-Dmaven.repo.local={{.G_BUILD_DIR}}/repo"
     cmds:
-      - "mkdir -p '{{.MAVEN_REPO_DIR}}'"
-      - "cp '{{.G_BUILD_DIR}}/clp-ffi-{{.G_PROJECT_VERSION}}.jar' '{{.MAVEN_REPO_DIR}}'"
+      # NOTE: Since we're using a custom repo-directory, this will end up rebuilding the package.
+      - "mvn install -DskipTests"
       - |-
         cd "integration-tests/jar-load-native-lib"
         mvn compile

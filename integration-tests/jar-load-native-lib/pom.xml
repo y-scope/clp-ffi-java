@@ -15,14 +15,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>local</id>
-            <name>local</name>
-            <url>file://${project.basedir}/../../target/repo</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.yscope.clp</groupId>
