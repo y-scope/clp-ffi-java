@@ -6,7 +6,6 @@ env:
 on:
   pull_request:
     paths:
-      - ".github/actions/native-lib-build/action.yml"
       - ".github/workflows/build-and-release-package.yml"
       - ".gitmodules"
       - "assembly-lib.xml"
@@ -14,9 +13,9 @@ on:
       - "CMakeLists.txt"
       - "pom.xml"
       - "src/**/*"
+      - "tools/scripts/ubuntu-focal/install-deps-build-test-package-native-lib.sh"
   push:
     paths:
-      - ".github/actions/native-lib-build/action.yml"
       - ".github/workflows/build-and-release-package.yml"
       - ".gitmodules"
       - "assembly-lib.xml"
@@ -24,14 +23,46 @@ on:
       - "CMakeLists.txt"
       - "pom.xml"
       - "src/**/*"
+      - "tools/scripts/ubuntu-focal/install-deps-build-test-package-native-lib.sh"
   workflow_dispatch:
 
 # Concurrency group to prevent multiple workflow instances from trying to publish releases
 concurrency: "${{github.workflow}}-${{github.ref}}"
 
 jobs:
+  build-lib-for-linux-aarch64:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          submodules: "recursive"
+
+      - uses: "docker/setup-qemu-action@v3"
+        with:
+          platforms: "arm64"
+
+      - name: "Build native library for Linux aarch64"
+        run: >-
+          docker run
+          --rm
+          --platform linux/arm64
+          --mount type=bind,source=${{ github.workspace }},target=/mnt/clp
+          --workdir /mnt/clp
+          eclipse-temurin:11-jdk-focal
+          ./tools/scripts/ubuntu-focal/install-deps-build-test-package-native-lib.sh
+
+      - uses: "actions/upload-artifact@v4"
+        with:
+          name: "libclp-ffi-java-linux-aarch64"
+          path: "${{github.workspace}}/target/clp-ffi-*-native-lib/"
+          if-no-files-found: "error"
+          retention-days: 1
+
   build-lib-for-macos:
-    runs-on: "macos-latest"
+    strategy:
+      matrix:
+        runner: ["macos-13", "macos-14"]
+    runs-on: "${{ matrix.runner }}"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -40,19 +71,23 @@ jobs:
       - name: "Install requirements"
         run: "brew install cmake gcc java${{env.JAVA_VERSION}} maven"
 
-      - name: "Build native library for MacOS"
-        id: "build"
-        uses: "./.github/actions/native-lib-build"
+      - name: "Build, test, and package native library for MacOS"
+        run: "mvn --batch-mode validate generate-resources test assembly:single@assemble-lib-dir"
 
       - uses: "actions/upload-artifact@v4"
         with:
-          name: "libclp-ffi-java-macos"
-          path: "${{github.workspace}}/clp-ffi-*-native-lib/"
+          name: >-
+            ${{ matrix.runner == 'macos-13'
+            && 'libclp-ffi-java-macos-amd64'
+            || 'libclp-ffi-java-macos-aarch64' }}
+          path: "${{github.workspace}}/target/clp-ffi-*-native-lib/"
           if-no-files-found: "error"
           retention-days: 1
 
   build-and-release:
-    needs: "build-lib-for-macos"
+    needs:
+      - "build-lib-for-linux-aarch64"
+      - "build-lib-for-macos"
     runs-on: "ubuntu-20.04"
     permissions:
       contents: "read"
@@ -87,13 +122,22 @@ jobs:
           sudo apt update
           sudo apt install -y build-essential cmake
 
-      - name: "Build, run tests, and package"
-        run: "mvn --batch-mode test package"
+      - name: "Build, and run tests"
+        run: "mvn --batch-mode test"
 
       - uses: "actions/download-artifact@v4"
         with:
-          name: "libclp-ffi-java-macos"
+          name: "libclp-ffi-java-linux-aarch64"
           path: "./target/."
+
+      - uses: "actions/download-artifact@v4"
+        with:
+          pattern: "libclp-ffi-java-macos-*"
+          path: "./target/."
+          merge-multiple: true
+
+      - name: "Build package"
+        run: "mvn --batch-mode package -DskipTests"
 
       - if: "github.event_name != 'pull_request' && github.ref == 'refs/heads/main'"
         name: "Deploy to GitHub Packages"
@@ -108,3 +152,10 @@ jobs:
           MAVEN_USERNAME: "${{secrets.OSSRH_USERNAME}}"
           MAVEN_PASSWORD: "${{secrets.OSSRH_TOKEN}}"
           MAVEN_GPG_PASSPHRASE: "${{secrets.GPG_PASSPHRASE}}"
+
+      - uses: "actions/upload-artifact@v4"
+        with:
+          name: "clp-ffi-java"
+          path: "${{github.workspace}}/target/clp-ffi-*.jar"
+          if-no-files-found: "error"
+          retention-days: 1

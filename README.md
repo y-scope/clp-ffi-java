@@ -46,9 +46,19 @@ task native-lib
 
 # Testing
 
-Run tests:
+Run all tests:
 ```shell
 task test
+```
+
+Run unit tests:
+```shell
+task unit-tests
+```
+
+Run integration tests:
+```shell
+task integration-tests
 ```
 
 # Linting

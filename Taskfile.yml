@@ -6,6 +6,8 @@ includes:
 vars:
   G_BUILD_DIR: "{{.ROOT_DIR}}/target"
   G_LINT_VENV_DIR: "{{.G_BUILD_DIR}}/lint-venv"
+  G_PROJECT_VERSION:
+    sh: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout"
 
 tasks:
   default:
@@ -21,9 +23,29 @@ tasks:
 
   native-lib:
     # NOTE: `validate` is necessary to remove spaces from the OS name
-    cmd: "mvn generate-resources validate assembly:single@assemble-lib-dir"
+    cmd: "mvn validate generate-resources assembly:single@assemble-lib-dir"
 
-  test: "mvn test"
+  test:
+    cmds:
+      - task: "unit-tests"
+      - task: "integration-tests"
+
+  integration-tests:
+    env:
+      # Use a local directory for the Maven repo so that we can install the jar (for the integration
+      # tests to use) without affecting the user's environment.
+      # NOTE: Maven doesn't strip quotes around the value, but treats everything on the right hand
+      # side of the equals sign as the value; so we don't need to quote the path.
+      MAVEN_OPTS: "-Dmaven.repo.local={{.G_BUILD_DIR}}/repo"
+    cmds:
+      # NOTE: Since we're using a custom repo-directory, this will end up rebuilding the package.
+      - "mvn install -DskipTests"
+      - |-
+        cd "integration-tests/jar-load-native-lib"
+        mvn compile
+        mvn exec:java -Dexec.mainClass="com.yscope.clp.Main"
+
+  unit-tests: "mvn test"
 
   lint:
     deps: ["lint-venv"]
