@@ -23,7 +23,7 @@ tasks:
 
   native-lib:
     # NOTE: `validate` is necessary to remove spaces from the OS name
-    cmd: "mvn generate-resources validate assembly:single@assemble-lib-dir"
+    cmd: "mvn validate generate-resources assembly:single@assemble-lib-dir"
 
   test:
     cmds:

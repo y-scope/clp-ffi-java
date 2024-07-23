@@ -10,4 +10,4 @@ apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake maven
 
 cd "$project_dir"
-mvn --batch-mode generate-resources validate assembly:single@assemble-lib-dir
+mvn --batch-mode validate generate-resources test assembly:single@assemble-lib-dir
