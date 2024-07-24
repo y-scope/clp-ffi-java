@@ -99,7 +99,9 @@ jobs:
         with:
           submodules: "recursive"
 
-      - uses: "actions/setup-java@v4"
+      - if: >-
+          startsWith(github.ref, 'refs/heads/v') != true || github.event_name != 'workflow_dispatch'
+        uses: "actions/setup-java@v4"
         with:
           java-version: "${{env.JAVA_VERSION}}"
           distribution: "${{env.JAVA_DIST}}"
