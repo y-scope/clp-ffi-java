@@ -7,7 +7,7 @@
 
     <groupId>com.yscope.clp</groupId>
     <artifactId>clp-ffi</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4.4</version>
     <packaging>jar</packaging>
 
     <name>CLP FFI</name>
