@@ -91,10 +91,10 @@ public class EncodingTests {
       EncodedMessage encodedMessage,
       String originalMessage
   ) throws IOException {
-    encodedMessage.computeFlattenedDictionaryVar();
+    encodedMessage.computeFlattenedDictionaryVars();
     String decodedMessage = messageDecoder.decodeMessage(
         encodedMessage.logtype,
-        encodedMessage.getFlattenedDictionaryVarBytes(),
+        encodedMessage.getFlattenedDictionaryVarsBytes(),
         encodedMessage.getFlattenedDictionaryVarEndOffsets(),
         encodedMessage.encodedVars);
     assertEquals(originalMessage, decodedMessage);

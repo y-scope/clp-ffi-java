@@ -57,7 +57,7 @@ public class EncodedMessage {
     return dictVars;
   }
 
-  public void computeFlattenedDictionaryVar() {
+  public void computeFlattenedDictionaryVars() {
     if (null == dictionaryVarBounds) {
       return;
     }
@@ -76,7 +76,7 @@ public class EncodedMessage {
     return flattenedDictionaryVarEndOffsets;
   }
 
-  public byte[] getFlattenedDictionaryVarBytes() {
+  public byte[] getFlattenedDictionaryVarsBytes() {
     return flattenedDictionaryVarsBytesOutputStream.toByteArray();
   }
 
