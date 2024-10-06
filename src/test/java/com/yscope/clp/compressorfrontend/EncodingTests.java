@@ -3,7 +3,6 @@ package com.yscope.clp.compressorfrontend;
 import com.yscope.clp.compressorfrontend.AbstractClpEncodedSubquery.VariableWildcardQuery;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,50 +19,25 @@ public class EncodingTests {
           new MessageDecoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
                              BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
       String message;
-      String decodedMessage;
 
       // Test encoding and decoding
       message = "Static text only";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "dictVar1Only";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "1.1";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "One dictVar1";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "1 encoded var";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3";
-      messageEncoder.encodeMessage(message, encodedMessage);
-      decodedMessage = messageDecoder.decodeMessage(
-          encodedMessage.getLogTypeAsString(), encodedMessage.getDictionaryVarsAsStrings(),
-          encodedMessage.encodedVars);
-      assertEquals(message, decodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       // Test searching encoded variables
       String logtypeAsString = encodedMessage.getLogTypeAsString();
@@ -90,6 +64,40 @@ public class EncodingTests {
     } catch (IOException e) {
       fail(e.getMessage());
     }
+  }
+
+  private void testEncodeAndDecode (String originalMessage, MessageEncoder messageEncoder, MessageDecoder messageDecoder,
+      EncodedMessage encodedMessage)
+      throws IOException {
+    messageEncoder.encodeMessage(originalMessage, encodedMessage);
+    testDecodeMessageHighLevelAPI(messageDecoder, encodedMessage, originalMessage);
+    testDecodeMessageLowLevelAPI(messageDecoder, encodedMessage, originalMessage);
+  }
+
+  private void testDecodeMessageHighLevelAPI(
+      MessageDecoder messageDecoder,
+      EncodedMessage encodedMessage,
+      String originalMessage
+  ) throws IOException {
+    String decodedMessage = messageDecoder.decodeMessage(
+        encodedMessage.getLogTypeAsString(),
+        encodedMessage.getDictionaryVarsAsStrings(),
+        encodedMessage.encodedVars);
+    assertEquals(originalMessage, decodedMessage);
+  }
+
+  private void testDecodeMessageLowLevelAPI(
+      MessageDecoder messageDecoder,
+      EncodedMessage encodedMessage,
+      String originalMessage
+  ) throws IOException {
+    encodedMessage.computeFlattenedDictionaryVar();
+    String decodedMessage = messageDecoder.decodeMessage(
+        encodedMessage.logtype,
+        encodedMessage.getFlattenedDictionaryVarBytes(),
+        encodedMessage.getFlattenedDictionaryVarEndOffsets(),
+        encodedMessage.encodedVars);
+    assertEquals(originalMessage, decodedMessage);
   }
 
   @Test

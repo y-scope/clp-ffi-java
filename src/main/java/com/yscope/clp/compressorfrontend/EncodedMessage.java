@@ -1,5 +1,6 @@
 package com.yscope.clp.compressorfrontend;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.LongStream;
 
@@ -11,6 +12,9 @@ public class EncodedMessage {
   public int[] dictionaryVarBounds;
 
   private byte[] message;
+
+  private int[] flattenedDictionaryVarEndOffsets;
+  private final ByteArrayOutputStream flattenedDictionaryVarsBytesOutputStream = new ByteArrayOutputStream();
 
   /**
    * Sets the message to which this encoded message corresponds.
@@ -49,6 +53,31 @@ public class EncodedMessage {
           endOffset - beginOffset, StandardCharsets.ISO_8859_1);
     }
     return dictVars;
+  }
+
+  public void computeFlattenedDictionaryVar() {
+    flattenedDictionaryVarsBytesOutputStream.reset();
+    if (null == dictionaryVarBounds) {
+      flattenedDictionaryVarEndOffsets = null;
+      return;
+    }
+
+    int numVars = dictionaryVarBounds.length / 2;
+    flattenedDictionaryVarEndOffsets = new int[numVars];
+    for (int i = 0, j = 0; i < numVars; ++i) {
+      int beginOffset = dictionaryVarBounds[j++];
+      int endOffset = dictionaryVarBounds[j++];
+      flattenedDictionaryVarsBytesOutputStream.write(message, beginOffset, endOffset - beginOffset);
+      flattenedDictionaryVarEndOffsets[i] = flattenedDictionaryVarsBytesOutputStream.size();
+    }
+  }
+
+  public int[] getFlattenedDictionaryVarEndOffsets() {
+    return flattenedDictionaryVarEndOffsets;
+  }
+
+  public byte[] getFlattenedDictionaryVarBytes() {
+    return flattenedDictionaryVarsBytesOutputStream.toByteArray();
   }
 
   public Long[] getEncodedVarsAsBoxedLongs() {

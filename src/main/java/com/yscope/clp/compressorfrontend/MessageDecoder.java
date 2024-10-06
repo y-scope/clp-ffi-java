@@ -15,6 +15,8 @@ public class MessageDecoder {
     NativeLibraryLoader.load();
   }
 
+  private ByteArrayOutputStream flattenedDictionaryVarsBytesOutputStream = new ByteArrayOutputStream();
+
   /**
    * Constructs an object for decoding CLP-encoded log messages.
    * @param variablesSchemaVersion The version of the variables schema used to
@@ -59,33 +61,88 @@ public class MessageDecoder {
       String[] dictionaryVars,
       long[] encodedVars
   ) throws IOException {
+    byte[] messageBytes = decodeMessageBytes(logtype, dictionaryVars, encodedVars);
+    return new String(messageBytes, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtypeBytes
+   * @param flattenedDictionaryVarsBytes
+   * @param flattenedDictionaryVarEndOffsets
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  public String decodeMessage(
+      @NotNull byte[] logtypeBytes,
+      byte[] flattenedDictionaryVarsBytes,
+      int[] flattenedDictionaryVarEndOffsets,
+      long[] encodedVars
+  ) throws IOException {
+    byte[] messageBytes = decodeMessageBytes(logtypeBytes, flattenedDictionaryVarsBytes,
+        flattenedDictionaryVarEndOffsets, encodedVars);
+    return new String(messageBytes, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Decodes the message bytes with the given logtype and variables
+   * @param logtype
+   * @param dictionaryVars
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  private byte[] decodeMessageBytes(
+      @NotNull String logtype,
+      String[] dictionaryVars,
+      long[] encodedVars
+  ) throws IOException {
     Objects.requireNonNull(logtype);
+    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
 
     int[] dictionaryVarEndOffsets = null;
     byte[] allDictionaryVars = null;
     if (null != dictionaryVars) {
       // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
       dictionaryVarEndOffsets = new int[dictionaryVars.length];
-      ByteArrayOutputStream dictionaryVarsOutputStream = new ByteArrayOutputStream();
+      flattenedDictionaryVarsBytesOutputStream = new ByteArrayOutputStream();
       int lastDictionaryVarEndOffset = 0;
       for (int i = 0; i < dictionaryVars.length; ++i) {
         byte[] dictionaryVarBytes = dictionaryVars[i].getBytes(StandardCharsets.UTF_8);
-        dictionaryVarsOutputStream.write(dictionaryVarBytes);
+        flattenedDictionaryVarsBytesOutputStream.write(dictionaryVarBytes);
         lastDictionaryVarEndOffset += dictionaryVarBytes.length;
         dictionaryVarEndOffsets[i] = lastDictionaryVarEndOffset;
       }
-      allDictionaryVars = dictionaryVarsOutputStream.toByteArray();
+      allDictionaryVars = flattenedDictionaryVarsBytesOutputStream.toByteArray();
     }
 
-    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
-    byte[] messageBytes = decodeMessageNative(
-        logtypeBytes, logtypeBytes.length, allDictionaryVars,
-        null == allDictionaryVars ? 0 : allDictionaryVars.length,
-        dictionaryVarEndOffsets,
-        null == dictionaryVarEndOffsets ? 0 : dictionaryVarEndOffsets.length,
-        encodedVars,
-        null == encodedVars ? 0 : encodedVars.length);
-    return new String(messageBytes, StandardCharsets.UTF_8);
+    return decodeMessageBytes(logtypeBytes, allDictionaryVars, dictionaryVarEndOffsets, encodedVars);
+  }
+
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtypeBytes
+   * @param flattenedDictionaryVarsBytes
+   * @param flattenedDictionaryVarEndOffsets
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  public byte[] decodeMessageBytes(
+      @NotNull byte[] logtypeBytes,
+      byte[] flattenedDictionaryVarsBytes,
+      int[] flattenedDictionaryVarEndOffsets,
+      long[] encodedVars)
+      throws IOException {
+    Objects.requireNonNull(logtypeBytes);
+    byte[] messageBytes = decodeMessageNative(logtypeBytes, logtypeBytes.length,
+        flattenedDictionaryVarsBytes,
+        null == flattenedDictionaryVarsBytes ? 0 : flattenedDictionaryVarsBytes.length,
+        flattenedDictionaryVarEndOffsets,
+        null == flattenedDictionaryVarEndOffsets ? 0 : flattenedDictionaryVarEndOffsets.length,
+        encodedVars, null == encodedVars ? 0 : encodedVars.length);
+    return messageBytes;
   }
 
   /**
