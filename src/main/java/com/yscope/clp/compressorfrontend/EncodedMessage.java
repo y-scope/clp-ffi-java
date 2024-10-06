@@ -29,6 +29,8 @@ public class EncodedMessage {
     logtype = null;
     encodedVars = null;
     dictionaryVarBounds = null;
+    flattenedDictionaryVarEndOffsets = null;
+    flattenedDictionaryVarsBytesOutputStream.reset();
   }
 
   public String getLogTypeAsString() {
@@ -56,9 +58,7 @@ public class EncodedMessage {
   }
 
   public void computeFlattenedDictionaryVar() {
-    flattenedDictionaryVarsBytesOutputStream.reset();
     if (null == dictionaryVarBounds) {
-      flattenedDictionaryVarEndOffsets = null;
       return;
     }
 
