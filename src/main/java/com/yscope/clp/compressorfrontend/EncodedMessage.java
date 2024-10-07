@@ -87,4 +87,8 @@ public class EncodedMessage {
       return LongStream.of(encodedVars).boxed().toArray(Long[]::new);
     }
   }
+
+  public byte[] getRawMessageBytes() {
+    return message;
+  }
 }
