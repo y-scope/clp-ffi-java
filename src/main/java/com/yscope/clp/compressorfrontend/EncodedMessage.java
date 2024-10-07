@@ -58,6 +58,12 @@ public class EncodedMessage {
   }
 
   public void computeFlattenedDictionaryVars() {
+    // Avoid computation on repetitive calls on the same encoded message
+    if (null != flattenedDictionaryVarEndOffsets) {
+      return;
+    }
+
+    // If there's no dictionary variables, nothing to compute on
     if (null == dictionaryVarBounds) {
       return;
     }
