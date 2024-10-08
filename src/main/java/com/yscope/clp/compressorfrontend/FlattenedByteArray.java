@@ -35,7 +35,6 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
     byteArrayOutputStream.reset();
     int[] elemEndOffsets = new int[elem.length];
-    byteArrayOutputStream = new ByteArrayOutputStream();
     int lastDictionaryVarEndOffset = 0;
     for (int i = 0; i < elem.length; ++i) {
       byte[] dictionaryVarBytes = elem[i].getBytes(StandardCharsets.UTF_8);

@@ -7,7 +7,7 @@ import static org.apache.commons.lang3.ArrayUtils.EMPTY_LONG_ARRAY;
 
 
 /**
- * This class extends EncodedMessage to provide a more CLP encoded data in a datastructures that minimizes
+ * This class extends EncodedMessage to provide CLP encoded data in data structures that minimizes
  * serialization and deserialization overhead during CLP message decoding.
  */
 public class DecodingOptimizedEncodedMessage extends EncodedMessage {
@@ -23,7 +23,7 @@ public class DecodingOptimizedEncodedMessage extends EncodedMessage {
 
   /**
    * Retrieves the raw message as a byte array
-   * @return a byte array representing the logtype
+   * @return a byte array representing the raw message
    */
   public byte @NotNull [] getRawMessage() {
     return message;
@@ -74,7 +74,7 @@ public class DecodingOptimizedEncodedMessage extends EncodedMessage {
 
   /**
    * Retrieves the encoded vars of the encoded message as a long array
-   * @return a byte array representing the logtype
+   * @return a long array representing the logtype
    */
   @Override
   public long @NotNull [] getEncodedVars() {
