@@ -77,7 +77,7 @@ public class DecodingOptimizedEncodedMessage extends EncodedMessage {
    * @return a byte array representing the logtype
    */
   @Override
-  public long[] getEncodedVars() {
+  public long @NotNull [] getEncodedVars() {
     return (null != encodedVars) ? encodedVars : EMPTY_LONG_ARRAY;
   }
 }
