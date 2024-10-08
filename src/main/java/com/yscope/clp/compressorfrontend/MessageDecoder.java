@@ -72,27 +72,6 @@ public class MessageDecoder {
    * @return The decoded message
    * @throws IOException if decoding fails
    */
-  private byte[] decodeMessageAsBytes(
-      @NotNull String logtype,
-      String[] dictionaryVars,
-      long[] encodedVars
-  ) throws IOException {
-    Objects.requireNonNull(logtype);
-    return decodeMessageAsBytes(
-        logtype.getBytes(StandardCharsets.ISO_8859_1),
-        null == dictionaryVars ? null : new FlattenedByteArray(dictionaryVars),
-        encodedVars
-    );
-  }
-
-  /**
-   * Decodes the message with the given logtype and variables
-   * @param logtype
-   * @param dictionaryVars
-   * @param encodedVars
-   * @return The decoded message
-   * @throws IOException if decoding fails
-   */
   public String decodeMessage(
       byte @NotNull [] logtype,
       FlattenedByteArray dictionaryVars,
@@ -141,6 +120,27 @@ public class MessageDecoder {
               null == encodedVars ? 0 : encodedVars.length
       );
     }
+  }
+
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtype
+   * @param dictionaryVars
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  private byte[] decodeMessageAsBytes(
+          @NotNull String logtype,
+          String[] dictionaryVars,
+          long[] encodedVars
+  ) throws IOException {
+    Objects.requireNonNull(logtype);
+    return decodeMessageAsBytes(
+            logtype.getBytes(StandardCharsets.ISO_8859_1),
+            null == dictionaryVars ? null : new FlattenedByteArray(dictionaryVars),
+            encodedVars
+    );
   }
 
   /**
