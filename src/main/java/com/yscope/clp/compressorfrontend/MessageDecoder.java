@@ -1,6 +1,5 @@
 package com.yscope.clp.compressorfrontend;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;

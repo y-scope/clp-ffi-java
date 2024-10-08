@@ -60,8 +60,14 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     return elemEndOffsets.length;
   }
 
-  // Convenience method to allow iteration over the individual elements in the flattened byte array
-  // Do not use if we wish to achieve the best performance
+  /**
+   * Provides an iterator over the individual elements in the flattened byte array.
+   * Note: This method creates a new object for each iteration, which may impact performance
+   * in tight loops or performance-critical sections. For high-performance scenarios,
+   * consider using direct access methods like getFlattenedElems() and getElemEndOffsets().
+   *
+   * @return An iterator over the byte arrays representing each element
+   */
   public @NotNull Iterator<byte[]> iterator() {
     return new ByteArrayIterator();
   }
