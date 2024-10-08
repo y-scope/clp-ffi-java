@@ -3,10 +3,10 @@ package com.yscope.clp.compressorfrontend;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
 import org.jetbrains.annotations.NotNull;
 
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_LONG_ARRAY;
-
 
 /**
  * Class to decode or search within encoded messages
@@ -60,65 +60,87 @@ public class MessageDecoder {
       String[] dictionaryVars,
       long[] encodedVars
   ) throws IOException {
-    byte[] messageBytes = decodeMessageBytes(logtype, dictionaryVars, encodedVars);
-    return new String(messageBytes, StandardCharsets.UTF_8);
+    byte[] message = decodeMessageAsBytes(logtype, dictionaryVars, encodedVars);
+    return new String(message, StandardCharsets.UTF_8);
   }
 
   /**
-   * Decodes the message bytes with the given logtype and variables
+   * Decodes the message with the given logtype and variables
    * @param logtype
    * @param dictionaryVars
    * @param encodedVars
    * @return The decoded message
    * @throws IOException if decoding fails
    */
-  private byte[] decodeMessageBytes(
+  private byte[] decodeMessageAsBytes(
       @NotNull String logtype,
       String[] dictionaryVars,
       long[] encodedVars
   ) throws IOException {
     Objects.requireNonNull(logtype);
-    return decodeMessageBytes(logtype.getBytes(StandardCharsets.ISO_8859_1),
-        new FlattenedByteArray(dictionaryVars),
-        (null != encodedVars) ? encodedVars : EMPTY_LONG_ARRAY);
+    return decodeMessageAsBytes(
+        logtype.getBytes(StandardCharsets.ISO_8859_1),
+        null == dictionaryVars ? null : new FlattenedByteArray(dictionaryVars),
+        encodedVars
+    );
   }
 
   /**
    * Decodes the message with the given logtype and variables
-   * @param logtypeBytes
-   * @param flattenedDictionaryVarsByteArray
+   * @param logtype
+   * @param dictionaryVars
    * @param encodedVars
    * @return The decoded message
    * @throws IOException if decoding fails
    */
   public String decodeMessage(
-      byte @NotNull [] logtypeBytes,
-      @NotNull FlattenedByteArray flattenedDictionaryVarsByteArray,
-      long @NotNull [] encodedVars
+      byte @NotNull [] logtype,
+      FlattenedByteArray dictionaryVars,
+      long[] encodedVars
   ) throws IOException {
-    return new String(decodeMessageBytes(logtypeBytes, flattenedDictionaryVarsByteArray, encodedVars),
-        StandardCharsets.UTF_8);
+    return new String(
+        decodeMessageAsBytes(logtype, dictionaryVars, encodedVars),
+        StandardCharsets.UTF_8
+    );
   }
 
   /**
    * Decodes the message with the given logtype and variables
-   * @param logtypeBytes
-   * @param flattenedDictionaryVarsByteArray
+   * @param logtype
+   * @param dictionaryVars
    * @param encodedVars
    * @return The decoded message
    * @throws IOException if decoding fails
    */
-  public byte[] decodeMessageBytes(
-      byte @NotNull [] logtypeBytes,
-      @NotNull FlattenedByteArray flattenedDictionaryVarsByteArray,
-      long @NotNull [] encodedVars
+  public byte[] decodeMessageAsBytes(
+      byte @NotNull [] logtype,
+      FlattenedByteArray dictionaryVars,
+      long[] encodedVars
   ) throws IOException {
-    return decodeMessageNative(logtypeBytes, logtypeBytes.length,
-        flattenedDictionaryVarsByteArray.getFlattenedElems(),
-        flattenedDictionaryVarsByteArray.getFlattenedElems().length,
-        flattenedDictionaryVarsByteArray.getElemEndOffsets(),
-        flattenedDictionaryVarsByteArray.getElemEndOffsets().length,
-        encodedVars, encodedVars.length);
+    Objects.requireNonNull(logtype);
+    if (null == dictionaryVars) {
+      return decodeMessageNative(
+              logtype,
+              logtype.length,
+              null,
+              0,
+              null,
+              0,
+              encodedVars,
+              null == encodedVars ? 0 : encodedVars.length
+      );
+    } else {
+      return decodeMessageNative(
+              logtype,
+              logtype.length,
+              dictionaryVars.getFlattenedElems(),
+              dictionaryVars.getFlattenedElems().length,
+              dictionaryVars.getElemEndOffsets(),
+              dictionaryVars.getElemEndOffsets().length,
+              encodedVars,
+              null == encodedVars ? 0 : encodedVars.length
+      );
+    }
   }
 
   /**
