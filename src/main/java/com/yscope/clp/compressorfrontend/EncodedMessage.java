@@ -1,20 +1,24 @@
 package com.yscope.clp.compressorfrontend;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.LongStream;
+import org.jetbrains.annotations.NotNull;
 
+
+/**
+ * A minimal base class for specialized encoded message types, such as {@code DecodingOptimizedEncodedMessage}.
+ *
+ * <p>This class serves as the data boundary between Java and native (JNI) code, holding the raw message bytes
+ * and its essential components, including the log type, encoded variables, and dictionary variable bounds.</p>
+ */
 public class EncodedMessage {
-  // These are public so that they can be accessed in native code without too
+  // These are protected so that they can be accessed in native code without too
   // many method calls
-  public byte[] logtype;
-  public long[] encodedVars;
-  public int[] dictionaryVarBounds;
+  protected byte[] logtype;
+  protected long[] encodedVars;
+  protected int[] dictionaryVarBounds;
 
-  private byte[] message;
-
-  private int[] flattenedDictionaryVarEndOffsets;
-  private final ByteArrayOutputStream flattenedDictionaryVarsBytesOutputStream = new ByteArrayOutputStream();
+  protected byte[] message;
 
   /**
    * Sets the message to which this encoded message corresponds.
@@ -22,17 +26,16 @@ public class EncodedMessage {
    * within the original message rather than as new strings
    * @param message
    */
-  public void setMessage(byte[] message) {
+  public void setMessage(byte @NotNull [] message) {
     this.message = message;
 
     // Clear the encoded values since they no longer match
     logtype = null;
     encodedVars = null;
     dictionaryVarBounds = null;
-    flattenedDictionaryVarEndOffsets = null;
-    flattenedDictionaryVarsBytesOutputStream.reset();
   }
 
+  /** Convenient but inefficient function to get the log type as a string */
   public String getLogTypeAsString() {
     if (null == logtype) {
       return null;
@@ -41,6 +44,7 @@ public class EncodedMessage {
     }
   }
 
+  /** Convenient but inefficient function to get the dictionary vars as a byteArray of string */
   public String[] getDictionaryVarsAsStrings() {
     if (null == dictionaryVarBounds) {
       return null;
@@ -57,35 +61,7 @@ public class EncodedMessage {
     return dictVars;
   }
 
-  public void computeFlattenedDictionaryVars() {
-    // Avoid computation on repetitive calls on the same encoded message
-    if (null != flattenedDictionaryVarEndOffsets) {
-      return;
-    }
-
-    // If there's no dictionary variables, nothing to compute on
-    if (null == dictionaryVarBounds) {
-      return;
-    }
-
-    int numVars = dictionaryVarBounds.length / 2;
-    flattenedDictionaryVarEndOffsets = new int[numVars];
-    for (int i = 0, j = 0; i < numVars; ++i) {
-      int beginOffset = dictionaryVarBounds[j++];
-      int endOffset = dictionaryVarBounds[j++];
-      flattenedDictionaryVarsBytesOutputStream.write(message, beginOffset, endOffset - beginOffset);
-      flattenedDictionaryVarEndOffsets[i] = flattenedDictionaryVarsBytesOutputStream.size();
-    }
-  }
-
-  public int[] getFlattenedDictionaryVarEndOffsets() {
-    return flattenedDictionaryVarEndOffsets;
-  }
-
-  public byte[] getFlattenedDictionaryVarsBytes() {
-    return flattenedDictionaryVarsBytesOutputStream.toByteArray();
-  }
-
+  /** Convenient but inefficient function to get the encoded vars as a byteArray of Long */
   public Long[] getEncodedVarsAsBoxedLongs() {
     if (null == encodedVars) {
       return null;
@@ -94,7 +70,7 @@ public class EncodedMessage {
     }
   }
 
-  public byte[] getRawMessageBytes() {
-    return message;
+  public long[] getEncodedVars() {
+    return encodedVars;
   }
 }
