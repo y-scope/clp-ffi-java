@@ -17,8 +17,6 @@ public class MessageDecoder {
     NativeLibraryLoader.load();
   }
 
-  private ByteArrayOutputStream flattenedDictionaryVarsBytesOutputStream = new ByteArrayOutputStream();
-
   /**
    * Constructs an object for decoding CLP-encoded log messages.
    * @param variablesSchemaVersion The version of the variables schema used to
@@ -82,7 +80,7 @@ public class MessageDecoder {
   ) throws IOException {
     Objects.requireNonNull(logtype);
     return decodeMessageBytes(logtype.getBytes(StandardCharsets.ISO_8859_1),
-        new FlattenedByteArray(flattenedDictionaryVarsBytesOutputStream, dictionaryVars),
+        new FlattenedByteArray(dictionaryVars),
         (null != encodedVars) ? encodedVars : EMPTY_LONG_ARRAY);
   }
 

@@ -24,8 +24,7 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     this.elemEndOffsets = Objects.requireNonNullElse(elemEndOffsets, EMPTY_INT_ARRAY);
   }
 
-  public FlattenedByteArray(ByteArrayOutputStream byteArrayOutputStream, String[] elem)
-      throws IOException {
+  public FlattenedByteArray(String[] elem) {
     if (null == elem || 0 == elem.length) {
       elemEndOffsets = EMPTY_INT_ARRAY;
       flattenedElems = EMPTY_BYTE_ARRAY;
@@ -33,17 +32,22 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     }
 
     // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
-    byteArrayOutputStream.reset();
+    int flattenedLength = 0;
     int[] elemEndOffsets = new int[elem.length];
-    int lastDictionaryVarEndOffset = 0;
     for (int i = 0; i < elem.length; ++i) {
-      byte[] dictionaryVarBytes = elem[i].getBytes(StandardCharsets.UTF_8);
-      byteArrayOutputStream.write(dictionaryVarBytes);
-      lastDictionaryVarEndOffset += dictionaryVarBytes.length;
-      elemEndOffsets[i] = lastDictionaryVarEndOffset;
+      flattenedLength += elem[i].length();
+      elemEndOffsets[i] = flattenedLength;
     }
     this.elemEndOffsets = elemEndOffsets;
-    flattenedElems = byteArrayOutputStream.toByteArray();
+
+    byte[] flattenedElems = new byte[flattenedLength];
+    int offset = 0;
+    for (int i = 0; i < elem.length; ++i) {
+      byte[] dictionaryVarBytes = elem[i].getBytes(StandardCharsets.UTF_8);
+      System.arraycopy(dictionaryVarBytes, 0, flattenedElems, offset, dictionaryVarBytes.length);
+      offset += dictionaryVarBytes.length;
+    }
+    this.flattenedElems = flattenedElems;
   }
 
   public byte @NotNull [] getFlattenedElems() {
@@ -85,6 +89,11 @@ public class FlattenedByteArray implements Iterable<byte[]> {
 
       // Extract the subarray from flattenedElems
       return ArrayUtils.subarray(flattenedElems, startOffset, endOffset);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Remove operation is not supported.");
     }
   }
 }
