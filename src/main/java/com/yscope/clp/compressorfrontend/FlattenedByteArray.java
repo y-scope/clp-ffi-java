@@ -55,6 +55,10 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     return elemEndOffsets;
   }
 
+  public int size() {
+    return elemEndOffsets.length;
+  }
+
   // Convenience method to allow iteration over the individual elements in the flattened byte array
   // Do not use if we wish to achieve the best performance
   public @NotNull Iterator<byte[]> iterator() {
