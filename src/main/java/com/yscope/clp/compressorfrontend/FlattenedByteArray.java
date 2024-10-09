@@ -10,14 +10,12 @@ import org.jetbrains.annotations.NotNull;
  * {@code byte[]} together and recording its end offset.
  */
 public class FlattenedByteArray implements Iterable<byte[]> {
-  public static final FlattenedByteArray EMPTY_FLATTENED_BYTE_ARRAY =
-      new FlattenedByteArray(null, null);
   private final byte[] flattenedElems;
   private final int[] elemEndOffsets;
 
   public FlattenedByteArray(byte[] flattenedElems, int[] elemEndOffsets) {
-    this.flattenedElems = null == flattenedElems ? new byte[0] : flattenedElems;
-    this.elemEndOffsets = null == elemEndOffsets ? new int[0] : elemEndOffsets;
+    this.flattenedElems = (null == flattenedElems) ? EmptyArrayUtils.EMPTY_BYTE_ARRAY : flattenedElems;
+    this.elemEndOffsets = (null == elemEndOffsets) ? EmptyArrayUtils.EMPTY_INT_ARRAY : elemEndOffsets;
   }
 
   public byte @NotNull [] getFlattenedElems() {

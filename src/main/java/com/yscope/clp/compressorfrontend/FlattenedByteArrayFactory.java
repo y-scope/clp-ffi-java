@@ -14,7 +14,7 @@ public class FlattenedByteArrayFactory {
      */
     public static FlattenedByteArray fromStrings(String[] strings) {
         if (null == strings || 0 == strings.length) {
-            return FlattenedByteArray.EMPTY_FLATTENED_BYTE_ARRAY;
+            return EmptyArrayUtils.EMPTY_FLATTENED_BYTE_ARRAY;
         }
 
         ByteArrayOutputStream outputStream;
