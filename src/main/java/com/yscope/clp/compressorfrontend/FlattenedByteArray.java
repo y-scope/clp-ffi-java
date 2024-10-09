@@ -22,32 +22,6 @@ public class FlattenedByteArray implements Iterable<byte[]> {
     this.elemEndOffsets = Objects.requireNonNullElse(elemEndOffsets, EMPTY_INT_ARRAY);
   }
 
-  public FlattenedByteArray(String[] elem) {
-    if (null == elem || 0 == elem.length) {
-      elemEndOffsets = EMPTY_INT_ARRAY;
-      flattenedElems = EMPTY_BYTE_ARRAY;
-      return;
-    }
-
-    // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
-    int flattenedLength = 0;
-    int[] elemEndOffsets = new int[elem.length];
-    for (int i = 0; i < elem.length; ++i) {
-      flattenedLength += elem[i].length();
-      elemEndOffsets[i] = flattenedLength;
-    }
-    this.elemEndOffsets = elemEndOffsets;
-
-    byte[] flattenedElems = new byte[flattenedLength];
-    int offset = 0;
-    for (int i = 0; i < elem.length; ++i) {
-      byte[] dictionaryVarBytes = elem[i].getBytes(StandardCharsets.UTF_8);
-      System.arraycopy(dictionaryVarBytes, 0, flattenedElems, offset, dictionaryVarBytes.length);
-      offset += dictionaryVarBytes.length;
-    }
-    this.flattenedElems = flattenedElems;
-  }
-
   public byte @NotNull [] getFlattenedElems() {
     return flattenedElems;
   }

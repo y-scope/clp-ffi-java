@@ -138,7 +138,7 @@ public class MessageDecoder {
     Objects.requireNonNull(logtype);
     return decodeMessageAsBytes(
             logtype.getBytes(StandardCharsets.ISO_8859_1),
-            null == dictionaryVars ? null : new FlattenedByteArray(dictionaryVars),
+            null == dictionaryVars ? null : FlattenedByteArrayFactory.fromStrings(dictionaryVars),
             encodedVars
     );
   }
