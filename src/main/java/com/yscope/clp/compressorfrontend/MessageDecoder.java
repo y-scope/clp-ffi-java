@@ -6,8 +6,6 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
 
-import static org.apache.commons.lang3.ArrayUtils.EMPTY_LONG_ARRAY;
-
 /**
  * Class to decode or search within encoded messages
  */

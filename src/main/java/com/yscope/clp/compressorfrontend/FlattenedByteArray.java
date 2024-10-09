@@ -1,6 +1,5 @@
 package com.yscope.clp.compressorfrontend;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
