@@ -45,29 +45,24 @@ public class FlattenedByteArray implements Iterable<byte[]> {
   }
 
   private class ByteArrayIterator implements Iterator<byte[]> {
-    private int currentIndex = 0;  // To track the current element being iterated
+    private int currentElemIdx = 0;
 
     @Override
     public boolean hasNext() {
-      return currentIndex < elemEndOffsets.length;
+      return currentElemIdx < elemEndOffsets.length;
     }
 
     @Override
     public byte[] next() {
-      if (!hasNext()) {
+      if (false == hasNext()) {
         throw new NoSuchElementException("No more elements in the byte array.");
       }
 
-      int startOffset = (currentIndex == 0) ? 0 : elemEndOffsets[currentIndex - 1];
-      int endOffset = elemEndOffsets[currentIndex];
-      currentIndex++;
+      int beginOffset = (0 == currentElemIdx) ? 0 : elemEndOffsets[currentElemIdx - 1];
+      int endOffset = elemEndOffsets[currentElemIdx];
+      currentElemIdx++;
 
-      return Arrays.copyOfRange(flattenedElems, startOffset, endOffset);
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("Remove operation is not supported.");
+      return Arrays.copyOfRange(flattenedElems, beginOffset, endOffset);
     }
   }
 }
