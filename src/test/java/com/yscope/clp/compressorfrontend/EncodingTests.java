@@ -82,7 +82,7 @@ public class EncodingTests {
     // Test decoding from byte arrays
     decodedMessage = messageDecoder.decodeMessage(
         encodedMessage.getLogtype(),
-        FlattenedByteArrayFactory.fromByteArrays(encodedMessage.getDictionaryVarsAsBytes()),
+        FlattenedByteArrayFactory.fromByteArrays(encodedMessage.getDictionaryVarsAsByteArrays()),
         encodedMessage.getEncodedVars()
     );
     assertEquals(originalMessage, decodedMessage);

@@ -71,7 +71,7 @@ public class EncodedMessage {
   /**
    * @return The dictionary variables instantiated as {@code byte[]}s.
    */
-  public byte[][] getDictionaryVarsAsBytes() {
+  public byte[][] getDictionaryVarsAsByteArrays() {
     if (null == dictionaryVarBounds) {
       return null;
     }
