@@ -5,10 +5,10 @@ package com.yscope.clp.compressorfrontend;
  * creating empty arrays unnecessarily, reducing unnecessary garbage collection (GC) pressure.
  */
 public class EmptyArrayUtils {
-  public static byte[] EMPTY_BYTE_ARRAY = new byte[0];
-  public static int[] EMPTY_INT_ARRAY = new int[0];
-  public static long[] EMPTY_LONG_ARRAY = new long[0];
-  public static FlattenedByteArray EMPTY_FLATTENED_BYTE_ARRAY =
+  public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+  public static final int[] EMPTY_INT_ARRAY = new int[0];
+  public static final long[] EMPTY_LONG_ARRAY = new long[0];
+  public static final FlattenedByteArray EMPTY_FLATTENED_BYTE_ARRAY =
       new FlattenedByteArray(EMPTY_BYTE_ARRAY, EMPTY_INT_ARRAY);
 
   public static byte[] getNonNullByteArray(byte[] byteArray) {
