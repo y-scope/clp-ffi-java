@@ -2,7 +2,6 @@ package com.yscope.clp.compressorfrontend;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,8 +19,8 @@ public class FlattenedByteArray implements Iterable<byte[]> {
   private final int[] elemEndOffsets;
 
   public FlattenedByteArray(byte[] flattenedElems, int[] elemEndOffsets) {
-    this.flattenedElems = Objects.requireNonNullElse(flattenedElems, EMPTY_BYTE_ARRAY);
-    this.elemEndOffsets = Objects.requireNonNullElse(elemEndOffsets, EMPTY_INT_ARRAY);
+    this.flattenedElems = null == flattenedElems ? EMPTY_BYTE_ARRAY : flattenedElems;
+    this.elemEndOffsets = null == elemEndOffsets ? EMPTY_INT_ARRAY : elemEndOffsets;
   }
 
   public byte @NotNull [] getFlattenedElems() {
