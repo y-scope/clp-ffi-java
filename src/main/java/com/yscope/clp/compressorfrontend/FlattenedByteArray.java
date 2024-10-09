@@ -14,8 +14,10 @@ public class FlattenedByteArray implements Iterable<byte[]> {
   private final int[] elemEndOffsets;
 
   public FlattenedByteArray(byte[] flattenedElems, int[] elemEndOffsets) {
-    this.flattenedElems = (null == flattenedElems) ? EmptyArrayUtils.EMPTY_BYTE_ARRAY : flattenedElems;
-    this.elemEndOffsets = (null == elemEndOffsets) ? EmptyArrayUtils.EMPTY_INT_ARRAY : elemEndOffsets;
+    this.flattenedElems = (null == flattenedElems)
+        ? EmptyArrayUtils.EMPTY_BYTE_ARRAY : flattenedElems;
+    this.elemEndOffsets = (null == elemEndOffsets)
+        ? EmptyArrayUtils.EMPTY_INT_ARRAY : elemEndOffsets;
   }
 
   public byte @NotNull [] getFlattenedElems() {

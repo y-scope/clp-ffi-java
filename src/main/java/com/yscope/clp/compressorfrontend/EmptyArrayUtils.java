@@ -1,9 +1,8 @@
 package com.yscope.clp.compressorfrontend;
 
 /**
- * Utility class for efficiently handling null-encoded message components when downstream systems require non-null
- * arrays. This class simplifies the process of avoiding large or empty array creation, reducing unnecessary garbage
- * collection (GC) pressure.
+ * Utilities to convert null arrays into empty arrays. These utilities allow callers to avoid
+ * creating empty arrays unnecessarily, reducing unnecessary garbage collection (GC) pressure.
  */
 public class EmptyArrayUtils {
   public static byte[] EMPTY_BYTE_ARRAY = new byte[0];
@@ -24,7 +23,9 @@ public class EmptyArrayUtils {
     return (null == longArray) ? EMPTY_LONG_ARRAY : longArray;
   }
 
-  public static FlattenedByteArray getNonNullFlattenedByteArray(FlattenedByteArray flattenedByteArray) {
+  public static FlattenedByteArray getNonNullFlattenedByteArray(
+      FlattenedByteArray flattenedByteArray
+  ) {
     return (null == flattenedByteArray) ? EMPTY_FLATTENED_BYTE_ARRAY : flattenedByteArray;
   }
 }
