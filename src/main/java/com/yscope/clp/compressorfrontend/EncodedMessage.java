@@ -37,7 +37,9 @@ public class EncodedMessage {
     return logtype;
   }
 
-  /** Convenient but inefficient function to get the log type as a string */
+  /**
+   * @return The logtype after converting it to a {@code String}.
+   */
   public String getLogTypeAsString() {
     if (null == logtype) {
       return null;
@@ -46,7 +48,9 @@ public class EncodedMessage {
     }
   }
 
-  /** Convenient but inefficient function to get the dictionary vars as a byteArray of string */
+  /**
+   * @return The dictionary variables instantiated as {@code String}s.
+   */
   public String[] getDictionaryVarsAsStrings() {
     if (null == dictionaryVarBounds) {
       return null;
@@ -63,6 +67,9 @@ public class EncodedMessage {
     return dictVars;
   }
 
+  /**
+   * @return The dictionary variables serialized into a flattened byte array.
+   */
   public FlattenedByteArray getDictionaryVarsAsFlattenedByteArray() {
     if (null == dictionaryVarBounds) {
       return null;
@@ -110,7 +117,9 @@ public class EncodedMessage {
     return encodedVars;
   }
 
-  /** Convenient but inefficient function to get the encoded vars as a byteArray of Long */
+  /**
+   * @return The encoded variables boxed into {@code Long} objects.
+   */
   public Long[] getEncodedVarsAsBoxedLongs() {
     if (null == encodedVars) {
       return null;
