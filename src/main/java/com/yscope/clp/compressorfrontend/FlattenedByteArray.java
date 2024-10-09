@@ -1,12 +1,9 @@
 package com.yscope.clp.compressorfrontend;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
-
-import static org.apache.commons.lang3.ArrayUtils.EMPTY_BYTE_ARRAY;
-import static org.apache.commons.lang3.ArrayUtils.EMPTY_INT_ARRAY;
 
 /**
  * A byte array that's the result of flattening a {@code byte[][]} by concatenating each
@@ -14,13 +11,13 @@ import static org.apache.commons.lang3.ArrayUtils.EMPTY_INT_ARRAY;
  */
 public class FlattenedByteArray implements Iterable<byte[]> {
   public static final FlattenedByteArray EMPTY_FLATTENED_BYTE_ARRAY =
-      new FlattenedByteArray(EMPTY_BYTE_ARRAY, EMPTY_INT_ARRAY);
+      new FlattenedByteArray(null, null);
   private final byte[] flattenedElems;
   private final int[] elemEndOffsets;
 
   public FlattenedByteArray(byte[] flattenedElems, int[] elemEndOffsets) {
-    this.flattenedElems = null == flattenedElems ? EMPTY_BYTE_ARRAY : flattenedElems;
-    this.elemEndOffsets = null == elemEndOffsets ? EMPTY_INT_ARRAY : elemEndOffsets;
+    this.flattenedElems = null == flattenedElems ? new byte[0] : flattenedElems;
+    this.elemEndOffsets = null == elemEndOffsets ? new int[0] : elemEndOffsets;
   }
 
   public byte @NotNull [] getFlattenedElems() {
@@ -65,8 +62,7 @@ public class FlattenedByteArray implements Iterable<byte[]> {
       int endOffset = elemEndOffsets[currentIndex];
       currentIndex++;
 
-      // Extract the subarray from flattenedElems
-      return ArrayUtils.subarray(flattenedElems, startOffset, endOffset);
+      return Arrays.copyOfRange(flattenedElems, startOffset, endOffset);
     }
 
     @Override
