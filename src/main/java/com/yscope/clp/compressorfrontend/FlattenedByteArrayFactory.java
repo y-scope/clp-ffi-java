@@ -7,6 +7,35 @@ public class FlattenedByteArrayFactory {
     private static ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream;
 
     /**
+     * Constructs a FlattenedByteArray by concatenating the given byte arrays together.
+     * @param byteArrays
+     * @return The flattened array.
+     */
+    public static FlattenedByteArray fromByteArrays(byte[][] byteArrays) {
+        if (null == byteArrays || 0 == byteArrays.length) {
+            return EmptyArrayUtils.EMPTY_FLATTENED_BYTE_ARRAY;
+        }
+
+        // Compute flattenedElemsEndOffsets
+        int flattenedElemsLength = 0;
+        int[] flattenedElemsEndOffsets = new int[byteArrays.length];
+        for (int i = 0; i < byteArrays.length; i++) {
+            flattenedElemsLength += byteArrays[i].length;
+            flattenedElemsEndOffsets[i] = flattenedElemsLength;
+        }
+
+        // Compute flattenedElems
+        byte[] flattenedElems = new byte[flattenedElemsLength];
+        for (int i = 0, flattenedElemsOffset = 0; i < byteArrays.length; i++) {
+            byte[] byteArray = byteArrays[i];
+            System.arraycopy(byteArray, 0, flattenedElems, flattenedElemsOffset, byteArray.length);
+            flattenedElemsOffset += byteArray.length;
+        }
+
+        return new FlattenedByteArray(flattenedElems, flattenedElemsEndOffsets);
+    }
+
+    /**
      * Constructs a FlattenedByteArray by converting the given strings into byte arrays and then
      * concatenating them together.
      * @param strings

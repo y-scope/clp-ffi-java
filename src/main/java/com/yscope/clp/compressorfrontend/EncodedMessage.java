@@ -1,6 +1,7 @@
 package com.yscope.clp.compressorfrontend;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.LongStream;
 
@@ -63,6 +64,24 @@ public class EncodedMessage {
       int endOffset = dictionaryVarBounds[j++];
       dictVars[i] = new String(message, beginOffset,
           endOffset - beginOffset, StandardCharsets.ISO_8859_1);
+    }
+    return dictVars;
+  }
+
+  /**
+   * @return The dictionary variables instantiated as {@code byte[]}s.
+   */
+  public byte[][] getDictionaryVarsAsByteArrays() {
+    if (null == dictionaryVarBounds) {
+      return null;
+    }
+
+    int numVars = dictionaryVarBounds.length / 2;
+    byte[][] dictVars = new byte[numVars][];
+    for (int i = 0, j = 0; i < dictVars.length; ++i) {
+      int beginOffset = dictionaryVarBounds[j++];
+      int endOffset = dictionaryVarBounds[j++];
+      dictVars[i] = Arrays.copyOfRange(message, beginOffset, endOffset);
     }
     return dictVars;
   }
