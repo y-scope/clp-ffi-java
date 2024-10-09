@@ -24,7 +24,7 @@ public class EmptyArrayUtils {
     return (null == longArray) ? EMPTY_LONG_ARRAY : longArray;
   }
 
-  public static byte[][] getEmptyByteArrayArray(byte[][] byteArrayArray) {
+  public static byte[][] getNonNullByteArrayArray(byte[][] byteArrayArray) {
     return (null == byteArrayArray) ? EMPTY_BYTE_ARRAY_ARRAY : byteArrayArray;
   }
 
