@@ -15,7 +15,6 @@ public class EncodingTests {
           new MessageEncoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
                              BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
       EncodedMessage encodedMessage = new EncodedMessage();
-      DecodingOptimizedEncodedMessage decodingOptimizedEncodedMessage = new DecodingOptimizedEncodedMessage();
       MessageDecoder messageDecoder =
           new MessageDecoder(BuiltInVariableHandlingRuleVersions.VariablesSchemaV2,
                              BuiltInVariableHandlingRuleVersions.VariableEncodingMethodsV1);
@@ -23,22 +22,22 @@ public class EncodingTests {
 
       // Test encoding and decoding
       message = "Static text only";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "dictVar1Only";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "1.1";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "One dictVar1";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "1 encoded var";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       message = "Static text, dictVar1, 123, 456.7, dictVar2, 987, 654.3";
-      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage, decodingOptimizedEncodedMessage);
+      testEncodeAndDecode(message, messageEncoder, messageDecoder, encodedMessage);
 
       // Test searching encoded variables
       String logtypeAsString = encodedMessage.getLogTypeAsString();
@@ -68,38 +67,24 @@ public class EncodingTests {
   }
 
   private void testEncodeAndDecode (String originalMessage, MessageEncoder messageEncoder, MessageDecoder messageDecoder,
-      EncodedMessage encodedMessage, DecodingOptimizedEncodedMessage decodingOptimizedEncodedMessage)
+      EncodedMessage encodedMessage)
       throws IOException {
-    // Test with EncodedMessage
     messageEncoder.encodeMessage(originalMessage, encodedMessage);
-    testDecodeMessage(messageDecoder, encodedMessage, originalMessage);
 
-    // Test with DecodingOptimizedEncodedMessage
-    messageEncoder.encodeMessage(originalMessage, decodingOptimizedEncodedMessage);
-    testDecodeMessage(messageDecoder, decodingOptimizedEncodedMessage, originalMessage);
-  }
-
-  private void testDecodeMessage(
-      MessageDecoder messageDecoder,
-      EncodedMessage encodedMessage,
-      String originalMessage
-  ) throws IOException {
+    // Test decoding from strings
     String decodedMessage = messageDecoder.decodeMessage(
         encodedMessage.getLogTypeAsString(),
         encodedMessage.getDictionaryVarsAsStrings(),
-        encodedMessage.getEncodedVars());
+        encodedMessage.getEncodedVars()
+    );
     assertEquals(originalMessage, decodedMessage);
-  }
 
-  private void testDecodeMessage(
-      MessageDecoder messageDecoder,
-      DecodingOptimizedEncodedMessage decodingOptimizedEncodedMessage,
-      String originalMessage
-  ) throws IOException {
-    String decodedMessage = messageDecoder.decodeMessage(
-        decodingOptimizedEncodedMessage.getLogType(),
-        decodingOptimizedEncodedMessage.getFlattenedDictionaryVars(),
-        decodingOptimizedEncodedMessage.getEncodedVars());
+    // Test decoding from byte arrays
+    decodedMessage = messageDecoder.decodeMessage(
+        encodedMessage.getLogtype(),
+        encodedMessage.getDictionaryVarsAsFlattenedByteArray(),
+        encodedMessage.getEncodedVars()
+    );
     assertEquals(originalMessage, decodedMessage);
   }
 
