@@ -7,11 +7,9 @@ import java.util.stream.LongStream;
 import org.jetbrains.annotations.NotNull;
 
 public class EncodedMessage {
-  // These are public so that they can be accessed in native code without too
-  // many method calls
-  public byte[] logtype;
-  public long[] encodedVars;
-  public int[] dictionaryVarBounds;
+  private byte[] logtype;
+  private long[] encodedVars;
+  private int[] dictionaryVarBounds;
 
   private FlattenedByteArray flattenedDictVars;
 
