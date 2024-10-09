@@ -9,7 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_BYTE_ARRAY;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_INT_ARRAY;
 
-
+/**
+ * A byte array that's the result of flattening a {@code byte[][]} by concatenating each
+ * {@code byte[]} together and recording its end offset.
+ */
 public class FlattenedByteArray implements Iterable<byte[]> {
   public static final FlattenedByteArray EMPTY_FLATTENED_BYTE_ARRAY =
       new FlattenedByteArray(EMPTY_BYTE_ARRAY, EMPTY_INT_ARRAY);
@@ -34,18 +37,17 @@ public class FlattenedByteArray implements Iterable<byte[]> {
   }
 
   /**
-   * Provides an iterator over the individual elements in the flattened byte array.
-   * Note: This method creates a new object for each iteration, which may impact performance
+   * NOTE: This method creates a new object for each iteration, which may impact performance
    * in tight loops or performance-critical sections. For high-performance scenarios,
-   * consider using direct access methods like getFlattenedElems() and getElemEndOffsets().
+   * consider using direct access methods like {@code getFlattenedElems()} and
+   * {@code getElemEndOffsets()}.
    *
-   * @return An iterator over the byte arrays representing each element
+   * @return An iterator over each element in the flattened array.
    */
   public @NotNull Iterator<byte[]> iterator() {
     return new ByteArrayIterator();
   }
 
-  // Inner class that implements the Iterator for the flattened byte array
   private class ByteArrayIterator implements Iterator<byte[]> {
     private int currentIndex = 0;  // To track the current element being iterated
 
