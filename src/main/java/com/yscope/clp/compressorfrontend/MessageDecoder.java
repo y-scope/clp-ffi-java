@@ -1,6 +1,5 @@
 package com.yscope.clp.compressorfrontend;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -59,33 +58,87 @@ public class MessageDecoder {
       String[] dictionaryVars,
       long[] encodedVars
   ) throws IOException {
+    byte[] message = decodeMessageAsBytes(logtype, dictionaryVars, encodedVars);
+    return new String(message, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtype
+   * @param dictionaryVars
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  public String decodeMessage(
+      byte @NotNull [] logtype,
+      FlattenedByteArray dictionaryVars,
+      long[] encodedVars
+  ) throws IOException {
+    return new String(
+        decodeMessageAsBytes(logtype, dictionaryVars, encodedVars),
+        StandardCharsets.UTF_8
+    );
+  }
+
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtype
+   * @param dictionaryVars
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  public byte[] decodeMessageAsBytes(
+      byte @NotNull [] logtype,
+      FlattenedByteArray dictionaryVars,
+      long[] encodedVars
+  ) throws IOException {
     Objects.requireNonNull(logtype);
-
-    int[] dictionaryVarEndOffsets = null;
-    byte[] allDictionaryVars = null;
-    if (null != dictionaryVars) {
-      // Flatten dictionaryVars (["var1", "var2", ...] -> "var1var2...")
-      dictionaryVarEndOffsets = new int[dictionaryVars.length];
-      ByteArrayOutputStream dictionaryVarsOutputStream = new ByteArrayOutputStream();
-      int lastDictionaryVarEndOffset = 0;
-      for (int i = 0; i < dictionaryVars.length; ++i) {
-        byte[] dictionaryVarBytes = dictionaryVars[i].getBytes(StandardCharsets.UTF_8);
-        dictionaryVarsOutputStream.write(dictionaryVarBytes);
-        lastDictionaryVarEndOffset += dictionaryVarBytes.length;
-        dictionaryVarEndOffsets[i] = lastDictionaryVarEndOffset;
-      }
-      allDictionaryVars = dictionaryVarsOutputStream.toByteArray();
+    if (null == dictionaryVars) {
+      return decodeMessageNative(
+              logtype,
+              logtype.length,
+              null,
+              0,
+              null,
+              0,
+              encodedVars,
+              null == encodedVars ? 0 : encodedVars.length
+      );
+    } else {
+      return decodeMessageNative(
+              logtype,
+              logtype.length,
+              dictionaryVars.getFlattenedElems(),
+              dictionaryVars.getFlattenedElems().length,
+              dictionaryVars.getElemEndOffsets(),
+              dictionaryVars.getElemEndOffsets().length,
+              encodedVars,
+              null == encodedVars ? 0 : encodedVars.length
+      );
     }
+  }
 
-    byte[] logtypeBytes = logtype.getBytes(StandardCharsets.ISO_8859_1);
-    byte[] messageBytes = decodeMessageNative(
-        logtypeBytes, logtypeBytes.length, allDictionaryVars,
-        null == allDictionaryVars ? 0 : allDictionaryVars.length,
-        dictionaryVarEndOffsets,
-        null == dictionaryVarEndOffsets ? 0 : dictionaryVarEndOffsets.length,
-        encodedVars,
-        null == encodedVars ? 0 : encodedVars.length);
-    return new String(messageBytes, StandardCharsets.UTF_8);
+  /**
+   * Decodes the message with the given logtype and variables
+   * @param logtype
+   * @param dictionaryVars
+   * @param encodedVars
+   * @return The decoded message
+   * @throws IOException if decoding fails
+   */
+  private byte[] decodeMessageAsBytes(
+          @NotNull String logtype,
+          String[] dictionaryVars,
+          long[] encodedVars
+  ) throws IOException {
+    Objects.requireNonNull(logtype);
+    return decodeMessageAsBytes(
+            logtype.getBytes(StandardCharsets.ISO_8859_1),
+            null == dictionaryVars ? null : FlattenedByteArrayFactory.fromStrings(dictionaryVars),
+            encodedVars
+    );
   }
 
   /**
