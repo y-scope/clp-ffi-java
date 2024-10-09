@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class FlattenedByteArrayFactory {
-    private static ByteArrayOutputStream reusableByteArrayOutputStream;
+    private static ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream;
 
     /**
      * Constructs a FlattenedByteArray by converting the given strings into byte arrays and then
@@ -17,19 +17,22 @@ public class FlattenedByteArrayFactory {
             return FlattenedByteArray.EMPTY_FLATTENED_BYTE_ARRAY;
         }
 
+        ByteArrayOutputStream outputStream;
         if (null == reusableByteArrayOutputStream) {
-            reusableByteArrayOutputStream = new ByteArrayOutputStream();
+            outputStream = new ByteArrayOutputStream();
+            reusableByteArrayOutputStream = ThreadLocal.withInitial(() -> outputStream);
         } else {
-            reusableByteArrayOutputStream.reset();
+            outputStream = reusableByteArrayOutputStream.get();
+            outputStream.reset();
         }
 
         int[] elemEndOffsets = new int[strings.length];
         for (int i = 0; i < strings.length; ++i) {
             byte[] bytes = strings[i].getBytes(StandardCharsets.UTF_8);
-            reusableByteArrayOutputStream.write(bytes, 0, bytes.length);
-            elemEndOffsets[i] = reusableByteArrayOutputStream.size();
+            outputStream.write(bytes, 0, bytes.length);
+            elemEndOffsets[i] = outputStream.size();
         }
 
-        return new FlattenedByteArray(reusableByteArrayOutputStream.toByteArray(), elemEndOffsets);
+        return new FlattenedByteArray(outputStream.toByteArray(), elemEndOffsets);
     }
 }
