@@ -4,7 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class FlattenedByteArrayFactory {
-    private static ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream;
+    private static final ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream =
+            ThreadLocal.withInitial(ByteArrayOutputStream::new);
 
     /**
      * Constructs a FlattenedByteArray by concatenating the given byte arrays together.
@@ -46,14 +47,8 @@ public class FlattenedByteArrayFactory {
             return EmptyArrayUtils.EMPTY_FLATTENED_BYTE_ARRAY;
         }
 
-        ByteArrayOutputStream outputStream;
-        if (null == reusableByteArrayOutputStream) {
-            outputStream = new ByteArrayOutputStream();
-            reusableByteArrayOutputStream = ThreadLocal.withInitial(() -> outputStream);
-        } else {
-            outputStream = reusableByteArrayOutputStream.get();
-            outputStream.reset();
-        }
+        ByteArrayOutputStream outputStream = reusableByteArrayOutputStream.get();
+        outputStream.reset();
 
         int[] elemEndOffsets = new int[strings.length];
         for (int i = 0; i < strings.length; ++i) {
