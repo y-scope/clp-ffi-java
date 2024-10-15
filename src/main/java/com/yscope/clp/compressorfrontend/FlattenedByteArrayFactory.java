@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class FlattenedByteArrayFactory {
-    private static ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream = ThreadLocal.withInitial(ByteArrayOutputStream::new);
+    private static final ThreadLocal<ByteArrayOutputStream> reusableByteArrayOutputStream = ThreadLocal.withInitial(ByteArrayOutputStream::new);
 
     /**
      * Constructs a FlattenedByteArray by concatenating the given byte arrays together.
